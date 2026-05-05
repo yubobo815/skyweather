@@ -191,10 +191,21 @@ unitButtons.forEach((button) => {
 countryInput.addEventListener("change", savePreferences);
 
 favoriteSave.addEventListener("click", () => {
-  saveCurrentFavorite();
+  toggleCurrentFavorite();
 });
 
 favoriteList.addEventListener("click", async (event) => {
+  const removeButton = event.target.closest(".favorite-remove");
+
+  if (removeButton) {
+    const favorite = favorites[Number(removeButton.dataset.index)];
+
+    if (!favorite) return;
+
+    removeFavorite(favorite);
+    return;
+  }
+
   const favoriteButton = event.target.closest(".favorite-chip");
 
   if (!favoriteButton) return;
@@ -912,6 +923,21 @@ async function loadFavorite(favorite) {
   await loadWeatherByCoordinates(favorite.latitude, favorite.longitude, favorite.name);
 }
 
+function toggleCurrentFavorite() {
+  const favorite = createFavoriteFromCurrentPlace();
+
+  if (!favorite) return;
+
+  const alreadySaved = favorites.some((item) => item.id === favorite.id);
+
+  if (alreadySaved) {
+    removeFavorite(favorite);
+    return;
+  }
+
+  saveCurrentFavorite();
+}
+
 function saveCurrentFavorite() {
   const favorite = createFavoriteFromCurrentPlace();
 
@@ -929,6 +955,14 @@ function saveCurrentFavorite() {
   renderFavorites();
   updateFavoriteSaveButton();
   setStatus(`Saved ${favorite.name} to favorites.`);
+}
+
+function removeFavorite(favorite) {
+  favorites = favorites.filter((item) => item.id !== favorite.id);
+
+  savePreferences();
+  updateFavoriteSaveButton();
+  setStatus(`Removed ${favorite.name} from favorites.`);
 }
 
 function createFavoriteFromCurrentPlace() {
@@ -958,9 +992,16 @@ function renderFavorites() {
     ? favorites
         .map(
           (favorite, index) => `
-            <button class="favorite-chip" type="button" data-index="${index}" data-active="${currentFavorite?.id === favorite.id}" title="${escapeHtml(favorite.name)}" aria-label="Load ${escapeHtml(favorite.name)} forecast">
-              ${escapeHtml(getFavoriteShortName(favorite.name))}
-            </button>
+            <span class="favorite-item" data-active="${currentFavorite?.id === favorite.id}">
+              <button class="favorite-chip" type="button" data-index="${index}" data-active="${currentFavorite?.id === favorite.id}" title="${escapeHtml(favorite.name)}" aria-label="Load ${escapeHtml(favorite.name)} forecast">
+                ${escapeHtml(getFavoriteShortName(favorite.name))}
+              </button>
+              <button class="favorite-remove" type="button" data-index="${index}" title="Remove ${escapeHtml(favorite.name)}" aria-label="Remove ${escapeHtml(favorite.name)} from favorites">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </span>
           `,
         )
         .join("")
@@ -971,12 +1012,15 @@ function updateFavoriteSaveButton() {
   const favorite = createFavoriteFromCurrentPlace();
   const alreadySaved = favorite && favorites.some((item) => item.id === favorite.id);
 
-  favoriteSave.disabled = !favorite || alreadySaved;
+  favoriteSave.disabled = !favorite;
+  favoriteSave.classList.toggle("is-saved", Boolean(alreadySaved));
+  favoriteSave.setAttribute("aria-pressed", alreadySaved ? "true" : "false");
+  favoriteSave.title = alreadySaved ? "Remove this city from favorites" : "Save this city";
   favoriteSave.innerHTML = `
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3.8 14.5 9l5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4L9.5 9 12 3.8z" />
     </svg>
-    ${alreadySaved ? "Saved" : "Save city"}
+    ${alreadySaved ? "Unsave" : "Save city"}
   `;
   renderFavorites();
 }

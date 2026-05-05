@@ -254,7 +254,8 @@ select:focus {
 }
 
 .favorite-save,
-.favorite-chip {
+.favorite-chip,
+.favorite-remove {
   min-height: 34px;
   display: inline-flex;
   align-items: center;
@@ -279,6 +280,11 @@ select:focus {
   color: var(--accent-dark);
 }
 
+.favorite-save.is-saved {
+  border-color: rgba(37, 99, 235, 0.34);
+  background: var(--accent-soft);
+}
+
 .favorite-save svg {
   width: 15px;
   height: 15px;
@@ -295,16 +301,42 @@ select:focus {
   gap: 7px;
 }
 
+.favorite-item {
+  min-width: 0;
+  display: inline-flex;
+  align-items: stretch;
+}
+
 .favorite-chip {
-  max-width: 156px;
+  max-width: 146px;
   padding: 0 12px;
+  border-radius: 8px 0 0 8px;
+  border-right: 0;
   overflow: hidden;
   color: var(--muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.favorite-chip[data-active="true"] {
+.favorite-remove {
+  flex: 0 0 34px;
+  width: 34px;
+  padding: 0;
+  border-radius: 0 8px 8px 0;
+  color: var(--muted);
+}
+
+.favorite-remove svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2.4;
+}
+
+.favorite-chip[data-active="true"],
+.favorite-item[data-active="true"] .favorite-remove {
   border-color: rgba(37, 99, 235, 0.34);
   color: var(--accent-dark);
   background: var(--accent-soft);
@@ -313,7 +345,9 @@ select:focus {
 .favorite-save:hover,
 .favorite-save:focus-visible,
 .favorite-chip:hover,
-.favorite-chip:focus-visible {
+.favorite-chip:focus-visible,
+.favorite-remove:hover,
+.favorite-remove:focus-visible {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
@@ -323,6 +357,7 @@ select:focus {
 .favorite-save:disabled {
   opacity: 0.58;
   cursor: default;
+  box-shadow: none;
   transform: none;
 }
 
@@ -1394,6 +1429,20 @@ dd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .forecast-card-featured .forecast-accessories {
+    max-width: 68px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .forecast-card-featured .weather-accessory,
+  .forecast-card-featured .sport-chip {
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+  }
+
   .details-hero {
     grid-template-columns: 70px minmax(0, 1fr);
   }
@@ -1465,16 +1514,35 @@ dd {
     min-height: 0;
   }
 
+  .forecast-card-featured .forecast-top {
+    display: grid;
+    justify-content: start;
+    gap: 8px;
+  }
+
+  .forecast-card-featured .forecast-accessories {
+    max-width: none;
+    justify-content: flex-start;
+  }
+
   .forecast-card-featured .forecast-visual {
     grid-row: 1 / span 2;
     grid-column: 2;
-    grid-template-columns: 54px 32px;
+    grid-template-columns: 54px;
     align-items: center;
+    justify-items: end;
+    gap: 5px;
   }
 
   .forecast-card-featured .forecast-icon {
     width: 54px;
     height: 54px;
+  }
+
+  .forecast-card-featured .sport-chip {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
   }
 
   .forecast-card-featured .forecast-temps,
