@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Skyweather app icon</title>
+  <desc id="desc">A modern weather app icon with a sun, cloud, rain drops, and a teal sky arc.</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" x2="432" y1="40" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="0.48" stop-color="#2563eb" />
+      <stop offset="1" stop-color="#0f766e" />
+    </linearGradient>
+    <linearGradient id="arc" x1="130" x2="392" y1="340" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#99f6e4" />
+      <stop offset="1" stop-color="#67e8f9" />
+    </linearGradient>
+    <linearGradient id="cloud" x1="138" x2="374" y1="202" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#dbeafe" />
+    </linearGradient>
+    <filter id="soft-shadow" x="-18%" y="-18%" width="136%" height="148%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#082f49" flood-opacity="0.26" />
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)" />
+  <g transform="translate(46 36) scale(0.82)">
+    <circle cx="334" cy="160" r="58" fill="#facc15" />
+    <circle cx="334" cy="160" r="36" fill="#fde68a" opacity="0.96" />
+    <path
+      fill="none"
+      stroke="url(#arc)"
+      stroke-linecap="round"
+      stroke-width="32"
+      d="M126 333c62 44 166 47 237-8 27-20 46-45 58-71"
+      opacity="0.92"
+    />
+    <path
+      fill="url(#cloud)"
+      filter="url(#soft-shadow)"
+      d="M159 330h184c42 0 76-33 76-74s-34-74-76-74c-11 0-22 2-32 7-22-37-62-61-108-61-63 0-115 46-124 107-38 10-66 44-66 85 0 48 39 87 87 87h59Z"
+    />
+    <path
+      fill="#ffffff"
+      d="M152 303h193c23 0 42-18 42-41s-19-42-42-42c-13 0-25 6-33 15-14-38-51-65-94-65-51 0-93 39-99 89h33c13 0 23 10 23 22s-10 22-23 22Z"
+      opacity="0.68"
+    />
+    <path
+      fill="none"
+      stroke="#bae6fd"
+      stroke-linecap="round"
+      stroke-width="24"
+      d="M183 384v30M256 384v30M329 384v30"
+    />
+  </g>
+</svg>
