@@ -1,0 +1,41 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Weather F App Icon</title>
+  <desc>Neon sun and cloud weather app logo on dark rounded square background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="120" y1="90" x2="900" y2="930" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#073541"/>
+      <stop offset="0.55" stop-color="#032832"/>
+      <stop offset="1" stop-color="#03131F"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="310" y1="245" x2="575" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3FF5A"/>
+      <stop offset="1" stop-color="#B8FF00"/>
+    </linearGradient>
+    <linearGradient id="cloud" x1="305" y1="620" x2="805" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12F0E5"/>
+      <stop offset="0.55" stop-color="#20D8F8"/>
+      <stop offset="1" stop-color="#1B8DFF"/>
+    </linearGradient>
+    <filter id="sunGlow" x="-80" y="-80" width="760" height="760" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0.75 0 0 0 0.65  0 1 0 0 1  0 0 0.1 0 0  0 0 0 0.65 0"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="cloudGlow" x="240" y="390" width="650" height="360" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0.85 0 0 0.9  0 0 1 0 1  0 0 0 0.65 0"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g filter="url(#sunGlow)" stroke="url(#sun)" stroke-width="48" stroke-linecap="round">
+    <path d="M340 535C322 467 342 386 400 335C456 286 536 277 601 312"/>
+    <path d="M473 203V258"/>
+    <path d="M322 251L359 296"/>
+    <path d="M225 377L280 392"/>
+    <path d="M228 520L281 499"/>
+    <path d="M636 251L598 296"/>
+  </g>
+  <path filter="url(#cloudGlow)" d="M325 675H760C818 675 862 633 862 581C862 529 820 489 766 489C757 406 689 343 602 343C526 343 464 388 439 453C425 448 410 445 394 445C331 445 280 493 280 553C280 614 330 675 325 675Z"
+        stroke="url(#cloud)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
