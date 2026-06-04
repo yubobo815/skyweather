@@ -1,4 +1,4 @@
-# Skyweather
+# Breezo
 
 A static weather app that looks up a postal code or city, resolves it to coordinates, and shows current conditions, today's hourly forecast, saved cities, and an extended forecast.
 

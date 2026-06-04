@@ -1,6 +1,6 @@
 {
-  "name": "Skyweather",
-  "short_name": "Skyweather",
+  "name": "Breezo",
+  "short_name": "Breezo",
   "description": "A fast extended weather forecast app.",
   "start_url": "/",
   "display": "standalone",

@@ -126,7 +126,7 @@ const rainStrengths = [
 
 const translations = {
   en: {
-    appTitle: "Skyweather",
+    appTitle: "Breezo",
     unitToggleLabel: "Temperature unit",
     languageToggleLabel: "Language",
     searchLabel: "Postal code or city",
@@ -323,7 +323,7 @@ const translations = {
     },
   },
   zh: {
-    appTitle: "Skyweather",
+    appTitle: "Breezo",
     unitToggleLabel: "温度单位",
     languageToggleLabel: "语言",
     searchLabel: "邮编或城市",
