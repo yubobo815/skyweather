@@ -30,21 +30,10 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v6
 
-      - name: Archive site
-        run: |
-          tar \
-            --dereference \
-            --hard-dereference \
-            --exclude=.git \
-            --exclude=.github \
-            -cvf "$RUNNER_TEMP/artifact.tar" .
-
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: ${{ runner.temp }}/artifact.tar
-          retention-days: 1
+          path: "."
 
       - name: Deploy to GitHub Pages
         id: deployment
