@@ -8,13 +8,13 @@
   "theme_color": "#002b36",
   "icons": [
     {
-      "src": "icons/icon-192-fullbleed.png",
+      "src": "icons/icon-192-cloudfix.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512-fullbleed.png",
+      "src": "icons/icon-512-cloudfix.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
