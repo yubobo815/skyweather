@@ -196,9 +196,12 @@ const translations = {
       hot: "Heat stress",
       humidWarm: "Humid warm",
       stickyWarm: "Sticky warm",
+      dampAir: "Damp air",
+      dampChill: "Damp chill",
       muggy: "Sticky air",
       oppressive: "Oppressive",
       dry: "Dry air",
+      dryChill: "Dry chill",
       summary: {
         comfortable: "Feels {feels} · {humidity} RH",
         crisp: "Feels {feels} · layer up",
@@ -207,9 +210,12 @@ const translations = {
         hot: "Feels {feels} · seek shade",
         humidWarm: "Dew {dew} · {humidity} RH",
         stickyWarm: "Dew {dew} · sticky",
+        dampAir: "{humidity} RH · damp feel",
+        dampChill: "Feels {feels} · damp chill",
         muggy: "Dew {dew} · damp air",
         oppressive: "Dew {dew} · slow down",
         dry: "{humidity} RH · hydrate",
+        dryChill: "{humidity} RH · dry cold",
       },
     },
     unavailable: "Unavailable",
@@ -407,9 +413,12 @@ const translations = {
       hot: "高温压力",
       humidWarm: "湿热偏暖",
       stickyWarm: "黏热",
+      dampAir: "潮湿",
+      dampChill: "湿冷",
       muggy: "湿闷",
       oppressive: "闷热压迫",
       dry: "空气偏干",
+      dryChill: "干冷",
       summary: {
         comfortable: "体感 {feels} · 湿度 {humidity}",
         crisp: "体感 {feels} · 注意保暖",
@@ -418,9 +427,12 @@ const translations = {
         hot: "体感 {feels} · 注意遮阴",
         humidWarm: "露点 {dew} · 湿度 {humidity}",
         stickyWarm: "露点 {dew} · 黏热",
+        dampAir: "湿度 {humidity} · 体感潮湿",
+        dampChill: "体感 {feels} · 湿冷",
         muggy: "露点 {dew} · 空气潮湿",
         oppressive: "露点 {dew} · 放慢节奏",
         dry: "湿度 {humidity} · 注意补水",
+        dryChill: "湿度 {humidity} · 干冷",
       },
     },
     unavailable: "暂无数据",
@@ -2087,6 +2099,12 @@ function getComfortDetails(current) {
     level = "humidWarm";
   } else if (Number.isFinite(humidity) && humidity >= 76 && apparentC !== null && apparentC >= 20) {
     level = "muggy";
+  } else if (Number.isFinite(humidity) && humidity >= 80 && apparentC !== null && apparentC <= 15) {
+    level = "dampChill";
+  } else if (Number.isFinite(humidity) && humidity >= 80) {
+    level = "dampAir";
+  } else if (Number.isFinite(humidity) && humidity <= 32 && apparentC !== null && apparentC <= 15) {
+    level = "dryChill";
   } else if (Number.isFinite(humidity) && humidity <= 32 && apparentC !== null && apparentC >= 18) {
     level = "dry";
   } else if (apparentC !== null && apparentC >= 32) {
@@ -2176,6 +2194,9 @@ function getComfortIcon(level) {
     `,
   };
 
+  icons.dampAir = icons.muggy;
+  icons.dampChill = icons.muggy;
+  icons.dryChill = icons.dry;
   icons.humidWarm = icons.muggy;
   icons.stickyWarm = icons.muggy;
   icons.oppressive = icons.hot;

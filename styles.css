@@ -1687,6 +1687,7 @@ dd {
 }
 
 .comfort-metric[data-comfort="crisp"] .comfort-visual,
+.comfort-metric[data-comfort="dryChill"] .comfort-visual,
 .comfort-metric[data-comfort="cool"] .comfort-visual {
   color: #0369a1;
   background:
@@ -1712,6 +1713,8 @@ dd {
 
 .comfort-metric[data-comfort="humidWarm"] .comfort-visual,
 .comfort-metric[data-comfort="stickyWarm"] .comfort-visual,
+.comfort-metric[data-comfort="dampAir"] .comfort-visual,
+.comfort-metric[data-comfort="dampChill"] .comfort-visual,
 .comfort-metric[data-comfort="muggy"] .comfort-visual {
   color: #6d28d9;
   background:
