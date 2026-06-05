@@ -1629,11 +1629,12 @@ function updateFavoriteSaveButton() {
   favoriteSave.classList.toggle("is-saved", Boolean(alreadySaved));
   favoriteSave.setAttribute("aria-pressed", alreadySaved ? "true" : "false");
   favoriteSave.title = alreadySaved ? t("unsave") : t("saveCity");
+  favoriteSave.setAttribute("aria-label", alreadySaved ? t("unsave") : t("saveCity"));
   favoriteSave.innerHTML = `
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3.8 14.5 9l5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4L9.5 9 12 3.8z" />
     </svg>
-    ${alreadySaved ? t("unsave") : t("saveCity")}
+    <span>${alreadySaved ? t("unsave") : t("saveCity")}</span>
   `;
   renderFavorites();
 }
