@@ -770,15 +770,11 @@ unitButtons.forEach((button) => {
 });
 
 languageButtons.forEach((button) => {
-  button.addEventListener("click", async () => {
+  button.addEventListener("click", () => {
     const selectedLanguage = button.dataset.language;
     if (selectedLanguage === activeLanguage) return;
 
     setActiveLanguage(selectedLanguage);
-
-    if (lastSearch) {
-      await rerunLastSearch();
-    }
   });
 });
 
