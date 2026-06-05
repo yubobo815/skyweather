@@ -591,8 +591,14 @@ select:focus {
 }
 
 .location-name {
+  display: -webkit-box;
   margin: 0;
+  max-width: 100%;
+  overflow: hidden;
   overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-size: 1.42rem;
   font-weight: 800;
   line-height: 1.12;

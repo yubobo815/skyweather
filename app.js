@@ -1270,7 +1270,9 @@ function renderWeather(place, forecast) {
   currentWeather.classList.remove("hidden");
   todayHourlyPanel.classList.remove("hidden");
   currentIcon.innerHTML = getWeatherIcon(currentInfo.type);
-  locationName.textContent = place.name;
+  locationName.textContent = getDisplayPlaceName(place.name);
+  locationName.title = place.name;
+  locationName.setAttribute("aria-label", place.name);
   currentCondition.textContent = currentInfo.label;
   currentTemp.textContent = `${Math.round(current.temperature_2m)}°`;
   currentFeels.textContent = t("feelsLikeValue", {
@@ -1770,6 +1772,22 @@ function formatGeocodingName(place) {
     .filter(Boolean)
     .filter((part, index, parts) => parts.indexOf(part) === index)
     .join(", ");
+}
+
+function getDisplayPlaceName(name) {
+  const normalized = String(name || "").replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= 34) return normalized;
+
+  const parts = normalized.split(",").map((part) => part.trim()).filter(Boolean);
+
+  if (parts.length < 2) return normalized;
+
+  const compactRegion = parts.slice(0, 2).join(", ");
+
+  if (compactRegion.length <= 42) return compactRegion;
+
+  return parts[0].length <= 42 ? parts[0] : normalized;
 }
 
 function isCurrentLocationFallbackName(name) {
