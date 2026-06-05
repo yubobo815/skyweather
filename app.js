@@ -194,7 +194,10 @@ const translations = {
       cool: "Chilly",
       warm: "Warm feel",
       hot: "Heat stress",
+      humidWarm: "Humid warm",
+      stickyWarm: "Sticky warm",
       muggy: "Sticky air",
+      oppressive: "Oppressive",
       dry: "Dry air",
       summary: {
         comfortable: "Feels {feels} · {humidity} RH",
@@ -202,7 +205,10 @@ const translations = {
         cool: "Feels {feels} · light layer",
         warm: "Feels {feels} · go easy",
         hot: "Feels {feels} · seek shade",
-        muggy: "{humidity} RH · feels {feels}",
+        humidWarm: "Dew {dew} · {humidity} RH",
+        stickyWarm: "Dew {dew} · sticky",
+        muggy: "Dew {dew} · damp air",
+        oppressive: "Dew {dew} · slow down",
         dry: "{humidity} RH · hydrate",
       },
     },
@@ -399,7 +405,10 @@ const translations = {
       cool: "偏凉",
       warm: "偏暖",
       hot: "高温压力",
+      humidWarm: "湿热偏暖",
+      stickyWarm: "黏热",
       muggy: "湿闷",
+      oppressive: "闷热压迫",
       dry: "空气偏干",
       summary: {
         comfortable: "体感 {feels} · 湿度 {humidity}",
@@ -407,7 +416,10 @@ const translations = {
         cool: "体感 {feels} · 薄外套",
         warm: "体感 {feels} · 放慢节奏",
         hot: "体感 {feels} · 注意遮阴",
-        muggy: "湿度 {humidity} · 体感 {feels}",
+        humidWarm: "露点 {dew} · 湿度 {humidity}",
+        stickyWarm: "露点 {dew} · 黏热",
+        muggy: "露点 {dew} · 空气潮湿",
+        oppressive: "露点 {dew} · 放慢节奏",
         dry: "湿度 {humidity} · 注意补水",
       },
     },
@@ -2044,21 +2056,40 @@ function getCurrentWindDetails(current) {
 
 function getComfortDetails(current) {
   const units = unitLabels[activeUnit];
+  const temperature = Number(current.temperature_2m);
   const apparent = Number(current.apparent_temperature);
   const humidity = Number(current.relative_humidity_2m);
+  const hasTemperature = Number.isFinite(temperature);
   const hasApparent = Number.isFinite(apparent);
+  const temperatureC = hasTemperature
+    ? activeUnit === "fahrenheit"
+      ? ((temperature - 32) * 5) / 9
+      : temperature
+    : null;
   const apparentC = hasApparent
     ? activeUnit === "fahrenheit"
       ? ((apparent - 32) * 5) / 9
       : apparent
     : null;
+  const dewPointC =
+    temperatureC !== null && Number.isFinite(humidity)
+      ? calculateDewPointC(temperatureC, humidity)
+      : null;
   let level = "comfortable";
 
-  if (Number.isFinite(humidity) && humidity >= 76 && apparentC !== null && apparentC >= 23) {
+  if (apparentC !== null && apparentC >= 35) {
+    level = "hot";
+  } else if (dewPointC !== null && dewPointC >= 24 && temperatureC !== null && temperatureC >= 24) {
+    level = "oppressive";
+  } else if (dewPointC !== null && dewPointC >= 21 && temperatureC !== null && temperatureC >= 24) {
+    level = "stickyWarm";
+  } else if (dewPointC !== null && dewPointC >= 18 && temperatureC !== null && temperatureC >= 24) {
+    level = "humidWarm";
+  } else if (Number.isFinite(humidity) && humidity >= 76 && apparentC !== null && apparentC >= 20) {
     level = "muggy";
   } else if (Number.isFinite(humidity) && humidity <= 32 && apparentC !== null && apparentC >= 18) {
     level = "dry";
-  } else if (apparentC !== null && apparentC >= 31) {
+  } else if (apparentC !== null && apparentC >= 32) {
     level = "hot";
   } else if (apparentC !== null && apparentC >= 25) {
     level = "warm";
@@ -2074,8 +2105,25 @@ function getComfortDetails(current) {
     summary: t(`comfort.summary.${level}`, {
       feels: hasApparent ? `${Math.round(apparent)}°${units.temp}` : t("unavailable"),
       humidity: Number.isFinite(humidity) ? `${Math.round(humidity)}%` : t("unavailable"),
+      dew: dewPointC !== null ? formatComfortTemperature(dewPointC) : t("unavailable"),
     }),
   };
+}
+
+function calculateDewPointC(temperatureC, relativeHumidity) {
+  const humidity = Math.min(Math.max(Number(relativeHumidity), 1), 100);
+  const magnusA = 17.625;
+  const magnusB = 243.04;
+  const gamma =
+    Math.log(humidity / 100) + (magnusA * temperatureC) / (magnusB + temperatureC);
+
+  return (magnusB * gamma) / (magnusA - gamma);
+}
+
+function formatComfortTemperature(valueC) {
+  const value = activeUnit === "fahrenheit" ? (valueC * 9) / 5 + 32 : valueC;
+
+  return `${Math.round(value)}°${unitLabels[activeUnit].temp}`;
 }
 
 function getComfortIcon(level) {
@@ -2127,6 +2175,10 @@ function getComfortIcon(level) {
       </svg>
     `,
   };
+
+  icons.humidWarm = icons.muggy;
+  icons.stickyWarm = icons.muggy;
+  icons.oppressive = icons.hot;
 
   return icons[level] ?? icons.comfortable;
 }

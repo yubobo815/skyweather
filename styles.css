@@ -1702,13 +1702,16 @@ dd {
     rgba(254, 243, 199, 0.9);
 }
 
-.comfort-metric[data-comfort="hot"] .comfort-visual {
+.comfort-metric[data-comfort="hot"] .comfort-visual,
+.comfort-metric[data-comfort="oppressive"] .comfort-visual {
   color: #be123c;
   background:
     radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.92), transparent 38%),
     rgba(255, 228, 230, 0.92);
 }
 
+.comfort-metric[data-comfort="humidWarm"] .comfort-visual,
+.comfort-metric[data-comfort="stickyWarm"] .comfort-visual,
 .comfort-metric[data-comfort="muggy"] .comfort-visual {
   color: #6d28d9;
   background:
