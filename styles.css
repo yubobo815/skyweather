@@ -1548,6 +1548,10 @@ dd {
   align-items: center;
 }
 
+.sport-recommendation {
+  min-height: 44px;
+}
+
 .sport-visual,
 .comfort-visual {
   width: 44px;
@@ -1640,13 +1644,17 @@ dd {
 .comfort-copy {
   min-width: 0;
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
 
 .sport-copy strong,
 .comfort-copy strong {
   font-size: 1rem;
   line-height: 1;
+}
+
+.sport-copy strong {
+  font-size: 1.08rem;
 }
 
 .sport-copy small,

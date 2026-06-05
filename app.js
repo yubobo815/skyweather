@@ -2526,13 +2526,12 @@ function renderSportChip(sport, options = {}) {
 
 function renderSportRecommendation(sport) {
   return `
-    <span class="sport-recommendation" data-sport="${sport.type}" title="${escapeHtml(sport.reason)}">
+    <span class="sport-recommendation" data-sport="${sport.type}" title="${escapeHtml(sport.reason)}" aria-label="${escapeHtml(sport.reason)}">
       <span class="sport-visual" aria-hidden="true">
         ${getSportIcon(sport.type)}
       </span>
       <span class="sport-copy">
         <strong>${escapeHtml(sport.label)}</strong>
-        <small>${escapeHtml(sport.reason)}</small>
       </span>
     </span>
   `;
