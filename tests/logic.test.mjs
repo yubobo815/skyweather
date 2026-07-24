@@ -49,4 +49,5 @@ test("alerts cover storms, heat, heavy rain, and high UV", () => {
     hours: [{ weatherCode: 95, precipitation: 4, precipitationProbability: 90 }]
   });
   assert.deepEqual(alerts, ["stormAlert", "heatAlert", "rainAlert", "uvAlert"]);
+  assert.equal(alerts.length, 4);
 });
