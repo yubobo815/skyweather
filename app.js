@@ -324,13 +324,14 @@ function renderHourlyForecast(root, hours) {
   hours.forEach((hour, index) => {
     const chance = Math.round(hour.precipitationProbability);
     const rainChance = chance >= 20 ? `${chance}%` : "";
+    const windSpeed = formatWind(hour.windSpeed);
     const card = document.createElement("article");
     card.innerHTML = `
       <p>${index === 0 ? t("now") : formatHour(hour.time)}</p>
       <span class="hourly-icon">${weatherIcon(weatherType(hour.weatherCode))}</span>
       <strong>${formatTemp(hour.temperature)}</strong>
       <small class="hourly-rain">${rainChance}</small>
-      <small class="hourly-wind">${t("wind")} ${formatWind(hour.windSpeed)}</small>
+      <small class="hourly-wind" aria-label="${t("wind")} ${windSpeed}" title="${t("wind")} ${windSpeed}">${windSpeed}</small>
       <i class="rain-meter" style="--rain:${Math.max(5, chance)}%" aria-hidden="true"></i>
     `;
     hourly.append(card);

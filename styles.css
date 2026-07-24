@@ -50,4 +50,4 @@ button,input { font:inherit; } button { cursor:pointer; } button:focus-visible,i
 @media (max-width:640px) { .forecast { gap:0; }.forecast article.forecast-row { grid-template-columns:62px 34px minmax(0,1fr); gap:7px; min-height:76px; padding:10px 11px; }.forecast-row .forecast-day { font-size:12px!important; }.forecast-row .forecast-icon { width:29px; height:29px; }.forecast-temperature { grid-column:2/-1; grid-template-columns:34px minmax(80px,1fr) 34px; margin-top:-4px; }.forecast-temperature>small,.forecast-temperature>strong { font-size:13px; }.forecast-row .forecast-condition { font-size:12px!important; }.forecast-row .forecast-rain { font-size:11px!important; } }
 
 .hourly-rain { min-height:14px!important; margin-top:6px!important; }
-.hourly-wind { min-height:0!important; margin-top:1px!important; color:var(--muted)!important; font-size:10px!important; font-weight:650!important; white-space:nowrap; }
+.hourly-wind { min-height:0!important; max-width:100%; margin-top:1px!important; overflow:hidden; color:var(--muted)!important; font-size:10px!important; font-weight:650!important; text-overflow:ellipsis; white-space:nowrap; }
