@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comfort, isCurrentRequest, samePlace, toggleSavedPlace, weatherType } from "../logic.mjs";
+import { comfort, isCurrentRequest, rainTiming, samePlace, toggleSavedPlace, weatherAlerts, weatherType } from "../logic.mjs";
 
 test("weather codes map to user-facing conditions", () => {
   assert.equal(weatherType(0), "clear");
@@ -30,4 +30,23 @@ test("saved-city toggling is reversible and coordinate based", () => {
   assert.deepEqual(toggleSavedPlace([], melbourne), [melbourne]);
   assert.deepEqual(toggleSavedPlace([melbourne], melbourne), []);
   assert.equal(samePlace(melbourne, { ...melbourne, name: "Melbourne CBD" }), true);
+});
+
+test("rain timing identifies the first meaningful wet hour", () => {
+  const hours = [
+    { precipitation: 0, precipitationProbability: 15 },
+    { precipitation: 0.1, precipitationProbability: 30 },
+    { precipitation: 0.4, precipitationProbability: 55 }
+  ];
+  assert.equal(rainTiming(hours), 2);
+  assert.equal(rainTiming(hours.slice(0, 2)), -1);
+});
+
+test("alerts cover storms, heat, heavy rain, and high UV", () => {
+  const alerts = weatherAlerts({
+    current: { weatherCode: 0, apparentTemperature: 35, uvIndex: 9 },
+    dailyMax: 36,
+    hours: [{ weatherCode: 95, precipitation: 4, precipitationProbability: 90 }]
+  });
+  assert.deepEqual(alerts, ["stormAlert", "heatAlert", "rainAlert", "uvAlert"]);
 });

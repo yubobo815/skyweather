@@ -35,3 +35,16 @@ export function toggleSavedPlace(saved, place) {
   const index = saved.findIndex(candidate => samePlace(candidate, place));
   return index >= 0 ? saved.filter((_, candidateIndex) => candidateIndex !== index) : [...saved, place];
 }
+
+export function rainTiming(hours) {
+  return hours.findIndex(hour => hour.precipitation >= 0.2 || hour.precipitationProbability >= 50);
+}
+
+export function weatherAlerts({ current, dailyMax, hours }) {
+  const alerts = [];
+  if (weatherType(current.weatherCode) === "storm" || hours.some(hour => weatherType(hour.weatherCode) === "storm")) alerts.push("stormAlert");
+  if (current.apparentTemperature >= 34 || dailyMax >= 35) alerts.push("heatAlert");
+  if (hours.some(hour => hour.precipitation >= 3 || (hour.precipitation >= 1 && hour.precipitationProbability >= 80))) alerts.push("rainAlert");
+  if (current.uvIndex >= 8) alerts.push("uvAlert");
+  return alerts;
+}
