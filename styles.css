@@ -28,6 +28,8 @@ button,input { font:inherit; } button { cursor:pointer; } button:focus-visible,i
 .hourly-icon { display:block; width:32px; height:32px; margin:8px auto 0; }
 .forecast-icon { display:block; width:38px; height:38px; margin:8px auto 2px; }
 .hourly span,.forecast span { color:inherit; font-size:inherit; }
+.insight-icon { display:grid; width:38px; height:38px; flex:0 0 auto; place-items:center; }
+.utility-icon-img { width:30px; height:30px; opacity:.86; filter:invert(47%) sepia(59%) saturate(528%) hue-rotate(128deg) brightness(88%) contrast(86%); }
 @media (max-width:640px) { .condition-icon { width:40px; height:40px; }.hourly-icon { width:29px; height:29px; }.forecast-icon { width:31px; height:31px; } }
 
 /* Breezo's forecast hierarchy: compact scanning, clear rain timing, original visual system. */
