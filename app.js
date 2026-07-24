@@ -1,0 +1,64 @@
+import { comfort, isCurrentRequest, toggleSavedPlace, weatherType } from "./logic.mjs";
+
+const state = { language: localStorage.getItem("breezo-language") || "en", unit: localStorage.getItem("breezo-unit") || "celsius", place: null, weather: null, requestId: 0 };
+const api = "https://api.open-meteo.com/v1/forecast";
+const geocoder = "https://geocoding-api.open-meteo.com/v1/search";
+const copy = {
+  en: { searchLabel:"Search a city", search:"Search a city", welcome:"Weather that fits your day", welcomeCopy:"Search a city or use your location to get started.", humidity:"Humidity", wind:"Wind", rain:"Rain", uv:"UV index", todaysKit:"Today's kit", comfort:"Comfort", sport:"Sport", outlook:"Next 5 days", feels:"Feels like", save:"Save city", unsave:"Saved", loading:"Getting the forecast...", locationError:"We could not get your location.", searchError:"City not found. Try another name.", current:"Current location", indoor:"Indoor", outdoor:"Outdoor", clear:"Clear", partly:"Partly cloudy", cloudy:"Cloudy", fog:"Foggy", rainCondition:"Rain", snow:"Snow", storm:"Storm", kitUmbrella:"Umbrella", kitSunscreen:"Sunscreen", kitSunglasses:"Sunglasses", kitJacket:"Light jacket", kitCoat:"Warm coat", kitTee:"T-shirt", kitCopyUmbrella:"Rain is likely today.", kitCopySunscreen:"Strong sun is expected.", kitCopySunglasses:"Bright skies ahead.", kitCopyJacket:"A layer will be useful.", kitCopyCoat:"Keep warm outside.", kitCopyTee:"Comfortable for light layers.", balanced:"Balanced", coldBite:"Cold bite", chilly:"Chilly", warm:"Warm feel", highHeat:"Heat stress", humidWarm:"Humid warm", stickyWarm:"Sticky warm", dampAir:"Damp air", dampChill:"Damp chill", stickyAir:"Sticky air", oppressive:"Oppressive", dryAir:"Dry air", dryChill:"Dry chill", comfortBalanced:"Comfortable overall.", comfortDamp:"Humidity makes it feel heavier.", comfortDry:"The air feels dry.", comfortCold:"Cool air calls for a layer.", comfortHot:"Take it easy in the heat.", sportIndoor:"Better for indoor plans.", sportOutdoor:"Good conditions for being outside." },
+  zh: { searchLabel:"搜索城市", search:"搜索城市", welcome:"适合你今天的天气", welcomeCopy:"搜索城市或使用当前位置开始。", humidity:"湿度", wind:"风速", rain:"降雨", uv:"紫外线", todaysKit:"今日装备", comfort:"舒适度", sport:"运动", outlook:"未来 5 天", feels:"体感", save:"收藏城市", unsave:"已收藏", loading:"正在获取天气...", locationError:"无法获取当前位置。", searchError:"找不到这个城市，请换个名称。", current:"当前位置", indoor:"室内", outdoor:"室外", clear:"晴朗", partly:"局部多云", cloudy:"多云", fog:"有雾", rainCondition:"有雨", snow:"下雪", storm:"雷暴", kitUmbrella:"雨伞", kitSunscreen:"防晒霜", kitSunglasses:"太阳镜", kitJacket:"薄外套", kitCoat:"保暖外套", kitTee:"短袖", kitCopyUmbrella:"今天可能会下雨。", kitCopySunscreen:"紫外线较强。", kitCopySunglasses:"阳光明亮。", kitCopyJacket:"带一件外套会更舒服。", kitCopyCoat:"外出注意保暖。", kitCopyTee:"轻便穿着即可。", balanced:"体感平衡", coldBite:"冷感明显", chilly:"偏凉", warm:"偏暖", highHeat:"高温", humidWarm:"湿热", stickyWarm:"湿热", dampAir:"潮湿", dampChill:"湿冷", stickyAir:"潮湿", oppressive:"闷热", dryAir:"空气偏干", dryChill:"干冷", comfortBalanced:"整体感觉舒适。", comfortDamp:"湿度让体感更重。", comfortDry:"空气较干。", comfortCold:"偏凉，建议加一层。", comfortHot:"高温时减少剧烈活动。", sportIndoor:"更适合室内活动。", sportOutdoor:"适合户外活动。" }
+};
+const ui = { en: { language:"Language", switchUnit:"Switch temperature unit", useLocation:"Use current location", savedCities:"Saved cities", weatherDetails:"Weather details", apiError:"Weather data is unavailable. Please try again.", geoUnsupported:"Your browser does not support location." }, zh: { language:"语言", switchUnit:"切换温度单位", useLocation:"使用当前位置", savedCities:"已收藏城市", weatherDetails:"天气详情", apiError:"天气数据暂时不可用，请重试。", geoUnsupported:"你的浏览器不支持定位。" } };
+const t = (key) => ui[state.language][key] || copy[state.language][key] || key;
+const $ = (selector) => document.querySelector(selector);
+
+function symbol(type) { return ({ clear:"☀", partly:"◒", cloudy:"☁", fog:"≋", rain:"☂", snow:"❄", storm:"ϟ" })[type]; }
+function comfortCopy(level) { if (["dampAir","dampChill","humidWarm","stickyWarm","stickyAir","oppressive"].includes(level)) return t("comfortDamp"); if (["dryAir","dryChill"].includes(level)) return t("comfortDry"); if (["coldBite","chilly"].includes(level)) return t("comfortCold"); if (["highHeat"].includes(level)) return t("comfortHot"); return t("comfortBalanced"); }
+function formatTemp(value) { const number = state.unit === "fahrenheit" ? value * 9 / 5 + 32 : value; return `${Math.round(number)}°`; }
+function wind(value) { const number = state.unit === "fahrenheit" ? value / 1.60934 : value; return `${Math.round(number)} ${state.unit === "fahrenheit" ? "mph" : "km/h"}`; }
+function dayName(date) { return new Intl.DateTimeFormat(state.language === "zh" ? "zh-CN" : "en-US", { weekday:"short" }).format(new Date(`${date}T12:00:00`)); }
+function applyLanguage() {
+  document.documentElement.lang = state.language === "zh" ? "zh-CN" : "en";
+  $("#city-search").placeholder = t("search"); $("#city-search").setAttribute("aria-label",t("searchLabel"));
+  document.querySelectorAll("[data-i18n]").forEach(element => element.textContent = t(element.dataset.i18n));
+  document.querySelectorAll("[data-i18n-aria]").forEach(element => element.setAttribute("aria-label", t(element.dataset.i18nAria)));
+  document.querySelectorAll("[data-language]").forEach(button => { const active = button.dataset.language === state.language; button.classList.toggle("is-active", active); button.setAttribute("aria-pressed", String(active)); });
+  $("#unit-toggle").textContent = state.unit === "celsius" ? "C" : "F";
+}
+async function getWeather(latitude, longitude) {
+  const params = new URLSearchParams({ latitude, longitude, current:"temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,uv_index", daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max", timezone:"auto", forecast_days:"5" });
+  const response = await fetch(`${api}?${params}`); if (!response.ok) throw new Error("forecast"); return response.json();
+}
+async function searchCity(query) {
+  const params = new URLSearchParams({ name:query, count:"1", language:state.language, format:"json" });
+  const response = await fetch(`${geocoder}?${params}`); if (!response.ok) throw new Error("api"); const data = await response.json(); if (!data.results?.[0]) throw new Error("search"); return data.results[0];
+}
+async function loadPlace(place, requestId = ++state.requestId) {
+  $("#status").textContent=t("loading");
+  try { const weather = await getWeather(place.latitude,place.longitude); if (!isCurrentRequest(requestId, state.requestId)) return; state.place=place; state.weather=weather; render(); $("#status").textContent=""; }
+  catch { if (isCurrentRequest(requestId, state.requestId)) $("#status").textContent=t("apiError"); }
+}
+function savedPlaces() { try { return JSON.parse(localStorage.getItem("breezo-saved") || "[]"); } catch { return []; } }
+function isSaved() { return savedPlaces().some(place => place.latitude === state.place?.latitude && place.longitude === state.place?.longitude); }
+function toggleSaved() { localStorage.setItem("breezo-saved",JSON.stringify(toggleSavedPlace(savedPlaces(), state.place))); render(); }
+function renderSavedCities(root) { const saved = savedPlaces(); const section = root.querySelector("#saved-cities"); section.hidden = saved.length === 0; section.setAttribute("aria-label", t("savedCities")); if (!saved.length) return; saved.forEach(place => { const button=document.createElement("button"); button.type="button"; button.textContent=place.name; button.addEventListener("click",()=>loadPlace(place)); section.append(button); }); }
+function kit(type, current) { if (["rain","storm"].includes(type) || current.precipitation >= .5) return ["kitUmbrella","kitCopyUmbrella","☂"]; if (current.uv_index >= 8 && ["clear","partly"].includes(type)) return ["kitSunscreen","kitCopySunscreen","☀"]; if (current.apparent_temperature <= 10) return ["kitCoat","kitCopyCoat","◒"]; if (current.apparent_temperature <= 17 || current.wind_speed_10m >= 28) return ["kitJacket","kitCopyJacket","◒"]; if (current.apparent_temperature >= 27 && ["clear","partly"].includes(type)) return ["kitSunglasses","kitCopySunglasses","◉"]; return ["kitTee","kitCopyTee","○"]; }
+function render() {
+  applyLanguage(); if (!state.weather || !state.place) return;
+  const template=$("#weather-template").content.cloneNode(true); const current=state.weather.current; const type=weatherType(current.weather_code); const level=comfort(current.temperature_2m,current.apparent_temperature,current.relative_humidity_2m); const [kitTitle,kitCopy,kitIcon]=kit(type,current); const sport = ["storm","snow","fog","rain"].includes(type) || current.uv_index>=9 || current.apparent_temperature>=34 || current.apparent_temperature<10 || current.wind_speed_10m>=38 ? "indoor" : "outdoor";
+  template.querySelector("#place").textContent = state.place.name + (state.place.country ? `, ${state.place.country}` : "");
+  template.querySelector("#condition").textContent=t(type === "rain" ? "rainCondition" : type);
+  template.querySelector("#summary").textContent = `${t("feels")} ${formatTemp(current.apparent_temperature)} · ${t(level)}`;
+  template.querySelector("#temperature").textContent=formatTemp(current.temperature_2m).replace("°",""); template.querySelector("#temperature-unit").textContent=state.unit === "fahrenheit" ? "°F" : "°C"; template.querySelector("#feels-like").textContent=`${t("feels")} ${formatTemp(current.apparent_temperature)}`;
+  template.querySelector("#humidity").textContent=`${Math.round(current.relative_humidity_2m)}%`; template.querySelector("#wind").textContent=wind(current.wind_speed_10m); template.querySelector("#rain").textContent=`${current.precipitation.toFixed(1)} mm`; template.querySelector("#uv").textContent=Math.round(current.uv_index);
+  template.querySelector("#kit-title").textContent=t(kitTitle); template.querySelector("#kit-copy").textContent=t(kitCopy); template.querySelector("#kit-icon").textContent=kitIcon;
+  template.querySelector("#comfort-title").textContent=t(level); template.querySelector("#comfort-copy").textContent=comfortCopy(level); template.querySelector("#sport-title").textContent=t(sport); template.querySelector("#sport-copy").textContent=t(sport === "indoor" ? "sportIndoor" : "sportOutdoor");
+  template.querySelector("#save-button").textContent=t(isSaved() ? "unsave" : "save"); template.querySelector("#save-button").addEventListener("click",toggleSaved);
+  const forecast=template.querySelector("#forecast"); state.weather.daily.time.forEach((date,index)=>{ const type=weatherType(state.weather.daily.weather_code[index]); const day=document.createElement("article"); day.innerHTML=`<p>${dayName(date)}</p><strong>${formatTemp(state.weather.daily.temperature_2m_max[index])}</strong><p>${formatTemp(state.weather.daily.temperature_2m_min[index])}</p><span aria-label="${t(type === "rain" ? "rainCondition" : type)}">${symbol(type)}</span>`; forecast.append(day); });
+  const root=$("#weather"); root.replaceChildren(template); applyLanguage(); root.querySelector(".metrics").setAttribute("aria-label", t("weatherDetails")); renderSavedCities(root);
+}
+$("#search-button").addEventListener("click",async()=>{const query=$("#city-search").value.trim();if(!query)return;const requestId=++state.requestId;try{const place=await searchCity(query);if(!isCurrentRequest(requestId,state.requestId))return;await loadPlace(place,requestId);}catch(error){if(isCurrentRequest(requestId,state.requestId))$("#status").textContent=t(error.message==="search"?"searchError":"apiError");}});
+$("#city-search").addEventListener("keydown",event=>{if(event.key==="Enter") $("#search-button").click();});
+$("#location-button").addEventListener("click",()=>{ if (!navigator.geolocation) { $("#status").textContent=t("geoUnsupported"); return; } navigator.geolocation.getCurrentPosition(position=>loadPlace({latitude:position.coords.latitude,longitude:position.coords.longitude,name:t("current")}),()=>$("#status").textContent=t("locationError"),{enableHighAccuracy:false,timeout:10000}); });
+$("#unit-toggle").addEventListener("click",()=>{state.unit=state.unit==="celsius"?"fahrenheit":"celsius";localStorage.setItem("breezo-unit",state.unit);render();});
+document.querySelectorAll("[data-language]").forEach(button=>button.addEventListener("click",()=>{state.language=button.dataset.language;localStorage.setItem("breezo-language",state.language);render();applyLanguage();}));
+applyLanguage();

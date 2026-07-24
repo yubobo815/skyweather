@@ -1,0 +1,7 @@
+{
+  "name": "breezo",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/logic.test.mjs"
+  }
+}
