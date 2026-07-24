@@ -184,7 +184,7 @@ async function getWeather(latitude, longitude) {
     latitude,
     longitude,
     current: "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,uv_index",
-    hourly: "temperature_2m,precipitation,precipitation_probability,weather_code",
+    hourly: "temperature_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m",
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
     timezone: "auto",
     forecast_days: "10",
@@ -281,7 +281,8 @@ function upcomingHours() {
       temperature: hourly.temperature_2m[index],
       precipitation: hourly.precipitation[index],
       precipitationProbability: hourly.precipitation_probability[index],
-      weatherCode: hourly.weather_code[index]
+      weatherCode: hourly.weather_code[index],
+      windSpeed: hourly.wind_speed_10m[index]
     };
   });
 }
@@ -328,7 +329,8 @@ function renderHourlyForecast(root, hours) {
       <p>${index === 0 ? t("now") : formatHour(hour.time)}</p>
       <span class="hourly-icon">${weatherIcon(weatherType(hour.weatherCode))}</span>
       <strong>${formatTemp(hour.temperature)}</strong>
-      <small>${rainChance}</small>
+      <small class="hourly-rain">${rainChance}</small>
+      <small class="hourly-wind">${t("wind")} ${formatWind(hour.windSpeed)}</small>
       <i class="rain-meter" style="--rain:${Math.max(5, chance)}%" aria-hidden="true"></i>
     `;
     hourly.append(card);
