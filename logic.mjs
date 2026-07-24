@@ -48,3 +48,31 @@ export function weatherAlerts({ current, dailyMax, hours }) {
   if (current.uvIndex >= 8) alerts.push("uvAlert");
   return alerts;
 }
+
+const commonCityLabels = {
+  2158177: { en: { name: "Melbourne", country: "Australia" }, zh: { name: "墨尔本", country: "澳大利亚" } },
+  2147714: { en: { name: "Sydney", country: "Australia" }, zh: { name: "悉尼", country: "澳大利亚" } },
+  2174003: { en: { name: "Brisbane", country: "Australia" }, zh: { name: "布里斯班", country: "澳大利亚" } },
+  2063523: { en: { name: "Perth", country: "Australia" }, zh: { name: "珀斯", country: "澳大利亚" } },
+  2078025: { en: { name: "Adelaide", country: "Australia" }, zh: { name: "阿德莱德", country: "澳大利亚" } },
+  2172517: { en: { name: "Canberra", country: "Australia" }, zh: { name: "堪培拉", country: "澳大利亚" } },
+  2643743: { en: { name: "London", country: "United Kingdom" }, zh: { name: "伦敦", country: "英国" } },
+  5128581: { en: { name: "New York", country: "United States" }, zh: { name: "纽约", country: "美国" } },
+  1850147: { en: { name: "Tokyo", country: "Japan" }, zh: { name: "东京", country: "日本" } },
+  1816670: { en: { name: "Beijing", country: "China" }, zh: { name: "北京", country: "中国" } },
+  1796236: { en: { name: "Shanghai", country: "China" }, zh: { name: "上海", country: "中国" } },
+  1819729: { en: { name: "Hong Kong", country: "Hong Kong" }, zh: { name: "香港", country: "香港" } },
+  1880252: { en: { name: "Singapore", country: "Singapore" }, zh: { name: "新加坡", country: "新加坡" } },
+  5368361: { en: { name: "Los Angeles", country: "United States" }, zh: { name: "洛杉矶", country: "美国" } },
+  5391959: { en: { name: "San Francisco", country: "United States" }, zh: { name: "旧金山", country: "美国" } },
+  2988507: { en: { name: "Paris", country: "France" }, zh: { name: "巴黎", country: "法国" } },
+  2950159: { en: { name: "Berlin", country: "Germany" }, zh: { name: "柏林", country: "德国" } },
+  6167865: { en: { name: "Toronto", country: "Canada" }, zh: { name: "多伦多", country: "加拿大" } },
+  6173331: { en: { name: "Vancouver", country: "Canada" }, zh: { name: "温哥华", country: "加拿大" } }
+};
+
+export function localizedPlaceLabels(place, language, alternateLanguage, alternatePlace) {
+  const labels = { [language]: { name: place.name, country: place.country } };
+  if (alternatePlace) labels[alternateLanguage] = { name: alternatePlace.name, country: alternatePlace.country };
+  return { ...labels, ...(commonCityLabels[place.id] || {}) };
+}

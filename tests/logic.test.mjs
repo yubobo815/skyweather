@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comfort, isCurrentRequest, rainTiming, samePlace, toggleSavedPlace, weatherAlerts, weatherType } from "../logic.mjs";
+import { comfort, isCurrentRequest, localizedPlaceLabels, rainTiming, samePlace, toggleSavedPlace, weatherAlerts, weatherType } from "../logic.mjs";
 
 test("weather codes map to user-facing conditions", () => {
   assert.equal(weatherType(0), "clear");
@@ -50,4 +50,11 @@ test("alerts cover storms, heat, heavy rain, and high UV", () => {
   });
   assert.deepEqual(alerts, ["stormAlert", "heatAlert", "rainAlert", "uvAlert"]);
   assert.equal(alerts.length, 4);
+});
+
+test("common city labels remain bilingual when searched in Chinese", () => {
+  const melbourne = { id: 2158177, name: "墨尔本", country: "澳大利亚" };
+  const labels = localizedPlaceLabels(melbourne, "zh", "en", { name: "墨尔本", country: "澳大利亚" });
+  assert.deepEqual(labels.en, { name: "Melbourne", country: "Australia" });
+  assert.deepEqual(labels.zh, { name: "墨尔本", country: "澳大利亚" });
 });
