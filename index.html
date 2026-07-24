@@ -33,7 +33,12 @@
       </section>
     </main>
     <template id="weather-template">
-      <section class="hero">
+      <nav class="forecast-tabs" aria-label="Forecast sections">
+        <a class="is-active" href="#today" data-i18n="today">Today</a>
+        <a href="#hourly-section" data-i18n="hourlyTab">Hourly</a>
+        <a href="#forecast-section" data-i18n="tenDay">10 days</a>
+      </nav>
+      <section class="hero" id="today">
         <div class="hero-copy"><p class="eyebrow" id="place"></p><div class="condition-heading"><span class="condition-icon" id="condition-icon" aria-hidden="true"></span><h1 id="condition"></h1></div><p id="summary"></p></div>
         <div class="temperature"><strong id="temperature"></strong><span id="temperature-unit"></span><small id="feels-like"></small></div>
       </section>
@@ -44,13 +49,14 @@
         <article><span data-i18n="uv">UV index</span><strong id="uv"></strong></article>
       </section>
       <section class="alerts" id="alerts" hidden aria-live="polite"></section>
+      <section class="rain-callout" aria-live="polite"><span class="rain-callout-icon" aria-hidden="true">☂</span><div><p data-i18n="rainOutlook">Rain outlook</p><strong id="rain-outlook"></strong></div></section>
       <section class="insights">
         <article class="insight"><div><p class="eyebrow" data-i18n="todaysKit">Today's kit</p><h2 id="kit-title"></h2><p id="kit-copy"></p></div><span id="kit-icon" class="insight-icon"></span></article>
         <article class="insight"><div><p class="eyebrow" data-i18n="comfort">Comfort</p><h2 id="comfort-title"></h2><p id="comfort-copy"></p></div><span class="insight-icon">◌</span></article>
         <article class="insight"><div><p class="eyebrow" data-i18n="sport">Sport</p><h2 id="sport-title"></h2><p id="sport-copy"></p></div><span class="insight-icon">◒</span></article>
       </section>
-      <section class="hourly-section"><div class="section-heading"><h2 data-i18n="hourly">Next 12 hours</h2><span id="rain-timing" class="rain-timing"></span></div><div id="hourly" class="hourly" aria-label="Hourly forecast"></div></section>
-      <section class="forecast-section"><div class="section-heading"><h2 data-i18n="outlook">Next 10 days</h2></div><div id="forecast" class="forecast"></div></section>
+      <section class="hourly-section" id="hourly-section"><div class="section-heading"><h2 data-i18n="hourly">Next 12 hours</h2><span id="rain-timing" class="rain-timing"></span></div><div id="hourly" class="hourly" aria-label="Hourly forecast"></div></section>
+      <section class="forecast-section" id="forecast-section"><div class="section-heading"><h2 data-i18n="outlook">Next 10 days</h2></div><div id="forecast" class="forecast"></div></section>
       <footer class="freshness"><span id="updated-at"></span><button id="refresh-button" class="refresh-button" type="button" data-i18n-aria="refresh" data-i18n-title="refresh" aria-label="Refresh forecast" title="Refresh forecast">↻</button></footer>
     </template>
     <script type="module" src="app.js"></script>

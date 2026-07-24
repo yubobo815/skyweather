@@ -29,3 +29,13 @@ button,input { font:inherit; } button { cursor:pointer; } button:focus-visible,i
 .forecast-icon { display:block; width:38px; height:38px; margin:8px auto 2px; }
 .hourly span,.forecast span { color:inherit; font-size:inherit; }
 @media (max-width:640px) { .condition-icon { width:40px; height:40px; }.hourly-icon { width:29px; height:29px; }.forecast-icon { width:31px; height:31px; } }
+
+/* Breezo's forecast hierarchy: compact scanning, clear rain timing, original visual system. */
+.forecast-tabs { display:flex; gap:22px; margin:18px 0 12px; padding:0 3px; border-bottom:1px solid var(--line); }
+.forecast-tabs a { position:relative; padding:0 1px 10px; color:var(--muted); font-size:14px; font-weight:750; text-decoration:none; }
+.forecast-tabs a:hover { color:var(--accent-dark); }.forecast-tabs .is-active { color:var(--accent-dark); }.forecast-tabs .is-active::after { position:absolute; right:0; bottom:-1px; left:0; height:3px; border-radius:3px 3px 0 0; background:var(--accent); content:""; }
+.rain-callout { display:flex; align-items:center; gap:11px; margin-top:14px; padding:12px 14px; border:1px solid #bfdbfe; border-radius:8px; background:#eff6ff; }
+.rain-callout-icon { display:grid; width:30px; height:30px; place-items:center; color:#0369a1; border-radius:50%; background:#dbeafe; font-size:17px; }.rain-callout p { margin:0; color:#475569; font-size:12px; font-weight:750; }.rain-callout strong { display:block; margin-top:1px; color:var(--accent-dark); font-size:14px; }
+.hourly article { position:relative; overflow:hidden; }.rain-meter { position:absolute; right:0; bottom:0; left:0; height:3px; background:linear-gradient(90deg,var(--sky) var(--rain),transparent var(--rain)); }
+.forecast { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }.forecast article { display:grid; grid-template-columns:48px 42px minmax(0,1fr) auto; align-items:center; gap:8px; min-height:82px; padding:12px 14px; text-align:left; }.forecast-day { color:var(--ink)!important; font-size:13px!important; font-weight:800; }.forecast-icon { width:38px; height:38px; margin:0; }.forecast-detail { min-width:0; }.forecast-condition { margin:0!important; text-overflow:ellipsis; }.forecast-rain { margin-top:3px; }.forecast strong { white-space:nowrap; text-align:right; }.forecast strong small { display:block; margin:1px 0 0; }
+@media (max-width:640px) { .forecast-tabs { gap:18px; margin-top:15px; }.rain-callout { margin-top:11px; }.forecast { grid-template-columns:1fr; gap:7px; }.forecast article { min-height:70px; grid-template-columns:44px 36px minmax(0,1fr) auto; padding:9px 11px; }.forecast-icon { width:32px; height:32px; }.forecast-day { font-size:12px!important; } }
