@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, toggleSavedPlace, weatherType } from "../logic.mjs";
+import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, temperatureHue, toggleSavedPlace, weatherType } from "../logic.mjs";
 
 test("weather codes map to user-facing conditions", () => {
   assert.equal(weatherType(0), "clear");
@@ -40,6 +40,14 @@ test("rain timing identifies the first meaningful wet hour", () => {
   ];
   assert.equal(rainTiming(hours), 2);
   assert.equal(rainTiming(hours.slice(0, 2)), -1);
+});
+
+test("temperature colors stay blue for cold days and progress to red for heat", () => {
+  assert.equal(temperatureHue(-10), 210);
+  assert.equal(temperatureHue(0), 210);
+  assert.equal(temperatureHue(20), 108);
+  assert.equal(temperatureHue(35), 5);
+  assert.equal(temperatureHue(45), 5);
 });
 
 test("common city labels remain bilingual when searched in Chinese", () => {

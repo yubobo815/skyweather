@@ -40,6 +40,11 @@ export function rainTiming(hours) {
   return hours.findIndex(hour => hour.precipitation >= 0.2 || hour.precipitationProbability >= 50);
 }
 
+export function temperatureHue(celsius) {
+  const bounded = Math.min(35, Math.max(5, celsius));
+  return Math.round(210 - ((bounded - 5) / 30) * 205);
+}
+
 const commonCityLabels = {
   2158177: { en: { name: "Melbourne", country: "Australia" }, zh: { name: "墨尔本", country: "澳大利亚" } },
   2147714: { en: { name: "Sydney", country: "Australia" }, zh: { name: "悉尼", country: "澳大利亚" } },

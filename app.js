@@ -3,6 +3,7 @@ import {
   isCurrentRequest,
   localizedPlaceLabels,
   rainTiming,
+  temperatureHue,
   toggleSavedPlace,
   weatherType
 } from "./logic.mjs";
@@ -189,6 +190,10 @@ function formatWind(value) {
   const speed = state.unit === "fahrenheit" ? value / 1.60934 : value;
   const unit = state.unit === "fahrenheit" ? "mph" : "km/h";
   return `${Math.round(speed)} ${unit}`;
+}
+
+function temperatureColor(value) {
+  return `hsl(${temperatureHue(value)} 78% 52%)`;
 }
 
 function formatHour(date) {
@@ -479,7 +484,7 @@ function renderDailyForecast(root) {
       </div>
       <div class="forecast-temperature">
         <small>${formatTemp(low)}</small>
-        <i aria-hidden="true"><b style="--range-start:${rangeStart}%;--range-width:${rangeWidth}%"></b></i>
+        <i aria-hidden="true"><b style="--range-start:${rangeStart}%;--range-width:${rangeWidth}%;--range-low-color:${temperatureColor(low)};--range-high-color:${temperatureColor(high)}"></b></i>
         <strong>${formatTemp(high)}</strong>
       </div>
     `;

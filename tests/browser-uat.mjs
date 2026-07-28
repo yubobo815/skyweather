@@ -107,6 +107,8 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.locator("#summary").textContent(), "Feels like 22°C · Balanced");
       assert.equal(await page.locator(".insights").count(), 0);
       assert.equal(await page.locator("#hourly article").count(), 12);
+      assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-low-color")), "hsl(149 78% 52%)");
+      assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-high-color")), "hsl(80 78% 52%)");
       assert.match(await page.locator("#hourly article").first().textContent(), /Now\s+.*21/);
       assert.equal((await page.locator("#hourly article").first().textContent()).includes("99"), false);
       assert.match(await page.locator("#weather-brief").textContent(), /^Showers are around now, then should ease by .+\. Temperatures will reach 24°C today\. UV will be high, so use sun protection\. Keep an umbrella handy; keep your sport plans indoors\.$/);
