@@ -102,7 +102,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 
 .hero { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 210px; padding: 28px; border: 1px solid var(--line); border-bottom: 0; border-radius: 10px 10px 0 0; background: var(--white); }
 .eyebrow { margin: 0 0 6px; color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
-.hero h1, .insight h2, .section-heading h2 { margin: 0; }
+.hero h1, .section-heading h2 { margin: 0; }
 .hero h1 { font-size: 32px; }
 .hero-copy > p:not(.eyebrow) { max-width: 430px; margin: 7px 0 0; color: var(--muted); }
 .condition-heading { gap: 10px; }
@@ -122,12 +122,6 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .weather-brief { margin-top: 16px; padding: 0 2px; }
 .weather-brief .eyebrow { margin-bottom: 5px; }
 .weather-brief > p:last-child { max-width: 720px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
-
-.insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin-top: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
-.insight { display: flex; justify-content: space-between; gap: 8px; min-height: 132px; padding: 18px; border: 0; border-right: 1px solid var(--line); background: transparent; }
-.insight:last-child { border-right: 0; }
-.insight h2 { font-size: 20px; }
-.insight p:not(.eyebrow) { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
 
 .hourly-section, .forecast-section { margin-top: 27px; }
 .section-heading { justify-content: space-between; gap: 12px; margin-bottom: 10px; }
@@ -179,13 +173,11 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 :root[data-theme="dark"] .hero { border-color: var(--line); background: var(--white); }
 :root[data-theme="dark"] .metrics,
 :root[data-theme="dark"] .forecast,
-:root[data-theme="dark"] .insight,
 :root[data-theme="dark"] .hourly article { background: transparent; }
 :root[data-theme="dark"] .metrics,
 :root[data-theme="dark"] .metrics article,
 :root[data-theme="dark"] .forecast,
 :root[data-theme="dark"] .forecast article.forecast-row,
-:root[data-theme="dark"] .insight,
 :root[data-theme="dark"] .hourly article { border-color: var(--line); }
 :root[data-theme="dark"] .save-city:hover { background: #5d91dd; }
 :root[data-theme="dark"] .forecast-temperature i { background: #434d5a; }
@@ -202,9 +194,6 @@ button:focus-visible, input:focus-visible, a:focus-visible {
   .metrics strong { font-size: 16px; }
   .weather-brief { margin-top: 13px; }
   .weather-brief > p:last-child { font-size: 14px; }
-  .insights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .insight { min-height: 124px; padding: 15px; }
-  .insight h2 { font-size: 18px; }
   .hourly { grid-auto-columns: 76px; }
   .hourly article { min-height: 156px; padding: 10px 6px 8px; }
   .hourly p { font-size: 11px; }

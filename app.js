@@ -26,41 +26,36 @@ const copy = {
   en: {
     searchLabel: "Search a city", search: "Search a city", welcome: "Weather that fits your day",
     welcomeCopy: "Search a city or use your location to get started.", humidity: "Humidity", wind: "Wind",
-    rain: "Rain", rainNow: "Rain now", uv: "UV index", todaysKit: "Today's kit", sport: "Sport",
+    rain: "Rain", rainNow: "Rain now", uv: "UV index",
     outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", briefTitle: "Today at a glance",
     feels: "Feels like", save: "Save city", unsave: "Saved", loading: "Getting the forecast...",
     locationError: "We could not get your location.", searchError: "City not found. Try another name.",
     current: "Current location", lastLocation: "Last location", indoor: "Indoor", outdoor: "Outdoor", clear: "Clear", partly: "Partly cloudy",
     cloudy: "Cloudy", fog: "Foggy", rainCondition: "Rain", snow: "Snow", storm: "Storm",
     kitUmbrella: "Umbrella", kitSunscreen: "Sunscreen", kitSunglasses: "Sunglasses", kitJacket: "Light jacket",
-    kitCoat: "Warm coat", kitTee: "T-shirt", kitCopyUmbrella: "Rain is likely today.",
-    kitCopySunscreen: "Strong sun is expected.", kitCopySunglasses: "Bright skies ahead.",
-    kitCopyJacket: "A layer will be useful.", kitCopyCoat: "Keep warm outside.",
-    kitCopyTee: "Comfortable for light layers.", balanced: "Balanced", coldBite: "Cold bite", chilly: "Chilly",
+    kitCoat: "Warm coat", kitTee: "T-shirt", balanced: "Balanced", coldBite: "Cold bite", chilly: "Chilly",
     warm: "Warm feel", highHeat: "Heat stress", humidWarm: "Humid warm", stickyWarm: "Sticky warm",
     dampAir: "Damp air", dampChill: "Damp chill", stickyAir: "Sticky air", oppressive: "Oppressive",
     dryAir: "Dry air", dryChill: "Dry chill", briefBase: "{condition} today, with a high of {high} and low of {low}.",
     briefRainNow: "Rain is falling now.", briefRainAt: "Rain may begin around {time}.", briefDry: "No meaningful rain is expected over the next 12 hours.",
     briefHighUv: "UV will be high, so use sun protection.", briefHeat: "It will be hot, so take it easy outdoors.",
-    briefBreezy: "It will be breezy at times.",
+    briefBreezy: "It will be breezy at times.", briefKit: "Today's kit: {kit}.",
     sportIndoor: "Better for indoor plans.", sportOutdoor: "Good conditions for being outside."
   },
   zh: {
     searchLabel: "搜索城市", search: "搜索城市", welcome: "适合你今天的天气", welcomeCopy: "搜索城市或使用当前位置开始。",
-    humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线", todaysKit: "今日装备",
-    sport: "运动", outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
+    humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线",
+    outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
     feels: "体感", save: "收藏城市", unsave: "已收藏", loading: "正在获取天气...", locationError: "无法获取当前位置。",
     searchError: "找不到这个城市，请换个名称。", current: "当前位置", lastLocation: "上次位置", indoor: "室内", outdoor: "户外",
     clear: "晴朗", partly: "局部多云", cloudy: "多云", fog: "有雾", rainCondition: "有雨", snow: "下雪", storm: "雷暴",
     kitUmbrella: "雨伞", kitSunscreen: "防晒霜", kitSunglasses: "太阳镜", kitJacket: "薄外套", kitCoat: "保暖外套",
-    kitTee: "短袖", kitCopyUmbrella: "今天可能会下雨。", kitCopySunscreen: "紫外线较强。",
-    kitCopySunglasses: "阳光明亮。", kitCopyJacket: "带一件外套会更舒服。", kitCopyCoat: "外出注意保暖。",
-    kitCopyTee: "轻便穿着即可。", balanced: "体感平衡", coldBite: "冷感明显", chilly: "偏凉", warm: "偏暖",
+    kitTee: "短袖", balanced: "体感平衡", coldBite: "冷感明显", chilly: "偏凉", warm: "偏暖",
     highHeat: "高温", humidWarm: "湿热", stickyWarm: "湿热", dampAir: "潮湿", dampChill: "湿冷", stickyAir: "潮湿",
     oppressive: "闷热", dryAir: "空气偏干", dryChill: "干冷", briefBase: "今天{condition}，最高 {high}，最低 {low}。",
     briefRainNow: "当前有雨。", briefRainAt: "预计 {time} 起可能有雨。", briefDry: "未来 12 小时预计没有明显降雨。",
     briefHighUv: "紫外线较强，外出注意防晒。", briefHeat: "天气较热，户外活动注意休息。",
-    briefBreezy: "部分时段风会比较大。",
+    briefBreezy: "部分时段风会比较大。", briefKit: "今日装备：{kit}。",
     sportIndoor: "更适合室内活动。", sportOutdoor: "适合户外活动。"
   }
 };
@@ -357,7 +352,7 @@ function upcomingHours() {
   })];
 }
 
-function weatherBrief(type, current, hours) {
+function weatherBrief(type, current, hours, kit, sport) {
   const high = state.weather.daily.temperature_2m_max[0];
   const low = state.weather.daily.temperature_2m_min[0];
   const dailyUv = state.weather.daily.uv_index_max?.[0] ?? current.uv_index;
@@ -372,16 +367,18 @@ function weatherBrief(type, current, hours) {
   if (dailyUv >= 8) sentences.push(t("briefHighUv"));
   else if (high >= 34 || current.apparent_temperature >= 34) sentences.push(t("briefHeat"));
   else if (Math.max(...hours.map(hour => hour.windSpeed)) >= 28) sentences.push(t("briefBreezy"));
+  sentences.push(phrase("briefKit", { kit: t(kit) }));
+  sentences.push(t(sport === "indoor" ? "sportIndoor" : "sportOutdoor"));
   return sentences.join(state.language === "zh" ? "" : " ");
 }
 
 function kitRecommendation(type, current) {
-  if (["rain", "storm"].includes(type) || current.precipitation >= 0.5) return ["kitUmbrella", "kitCopyUmbrella"];
-  if (current.uv_index >= 8 && ["clear", "partly"].includes(type)) return ["kitSunscreen", "kitCopySunscreen"];
-  if (current.apparent_temperature <= 10) return ["kitCoat", "kitCopyCoat"];
-  if (current.apparent_temperature <= 17 || current.wind_speed_10m >= 28) return ["kitJacket", "kitCopyJacket"];
-  if (current.apparent_temperature >= 27 && ["clear", "partly"].includes(type)) return ["kitSunglasses", "kitCopySunglasses"];
-  return ["kitTee", "kitCopyTee"];
+  if (["rain", "storm"].includes(type) || current.precipitation >= 0.5) return "kitUmbrella";
+  if (current.uv_index >= 8 && ["clear", "partly"].includes(type)) return "kitSunscreen";
+  if (current.apparent_temperature <= 10) return "kitCoat";
+  if (current.apparent_temperature <= 17 || current.wind_speed_10m >= 28) return "kitJacket";
+  if (current.apparent_temperature >= 27 && ["clear", "partly"].includes(type)) return "kitSunglasses";
+  return "kitTee";
 }
 
 function renderHourlyForecast(root, hours) {
@@ -446,7 +443,7 @@ function render() {
   const current = state.weather.current;
   const type = weatherType(current.weather_code);
   const comfortLevel = comfort(current.temperature_2m, current.apparent_temperature, current.relative_humidity_2m);
-  const [kitTitle, kitCopy] = kitRecommendation(type, current);
+  const kitTitle = kitRecommendation(type, current);
   const sport = ["storm", "snow", "fog", "rain"].includes(type) || current.uv_index >= 9 || current.apparent_temperature >= 34 || current.apparent_temperature < 10 || current.wind_speed_10m >= 38 ? "indoor" : "outdoor";
 
   template.querySelector("#place").textContent = placeLabel(state.place);
@@ -460,16 +457,11 @@ function render() {
   template.querySelector("#wind").textContent = formatWind(current.wind_speed_10m);
   template.querySelector("#rain").textContent = `${current.precipitation.toFixed(1)} mm`;
   template.querySelector("#uv").textContent = Math.round(current.uv_index);
-  template.querySelector("#kit-title").textContent = t(kitTitle);
-  template.querySelector("#kit-copy").textContent = t(kitCopy);
-  template.querySelector("#sport-title").textContent = t(sport);
-  template.querySelector("#sport-copy").textContent = t(sport === "indoor" ? "sportIndoor" : "sportOutdoor");
-
   const hours = upcomingHours();
   const rainIndex = rainTiming(hours);
   const rainMessage = rainIndex >= 0 ? phrase("rainAt", formatHour(hours[rainIndex].time)) : t("dryHours");
   template.querySelector("#rain-timing").textContent = rainMessage;
-  template.querySelector("#weather-brief").textContent = weatherBrief(type, current, hours);
+  template.querySelector("#weather-brief").textContent = weatherBrief(type, current, hours, kitTitle, sport);
 
   const root = $("#weather");
   root.replaceChildren(template);
