@@ -27,7 +27,7 @@ const copy = {
   en: {
     searchLabel: "Search a city", search: "Search a city", welcome: "Weather that fits your day",
     welcomeCopy: "Search a city or use your location to get started.", humidity: "Humidity", wind: "Wind",
-    rain: "Rain", rainNow: "Rain now", uv: "UV index", todaysKit: "Today's kit", comfort: "Comfort", sport: "Sport",
+    rain: "Rain", rainNow: "Rain now", uv: "UV index", todaysKit: "Today's kit", sport: "Sport",
     outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", rainOutlook: "Rain outlook",
     feels: "Feels like", save: "Save city", unsave: "Saved", loading: "Getting the forecast...",
     locationError: "We could not get your location.", searchError: "City not found. Try another name.",
@@ -40,14 +40,12 @@ const copy = {
     kitCopyTee: "Comfortable for light layers.", balanced: "Balanced", coldBite: "Cold bite", chilly: "Chilly",
     warm: "Warm feel", highHeat: "Heat stress", humidWarm: "Humid warm", stickyWarm: "Sticky warm",
     dampAir: "Damp air", dampChill: "Damp chill", stickyAir: "Sticky air", oppressive: "Oppressive",
-    dryAir: "Dry air", dryChill: "Dry chill", comfortBalanced: "Comfortable overall.",
-    comfortDamp: "Humidity makes it feel heavier.", comfortDry: "The air feels dry.",
-    comfortCold: "Cool air calls for a layer.", comfortHot: "Take it easy in the heat.",
+    dryAir: "Dry air", dryChill: "Dry chill",
     sportIndoor: "Better for indoor plans.", sportOutdoor: "Good conditions for being outside."
   },
   zh: {
     searchLabel: "搜索城市", search: "搜索城市", welcome: "适合你今天的天气", welcomeCopy: "搜索城市或使用当前位置开始。",
-    humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线", todaysKit: "今日装备", comfort: "舒适度",
+    humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线", todaysKit: "今日装备",
     sport: "运动", outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", rainOutlook: "降雨提示",
     feels: "体感", save: "收藏城市", unsave: "已收藏", loading: "正在获取天气...", locationError: "无法获取当前位置。",
     searchError: "找不到这个城市，请换个名称。", current: "当前位置", lastLocation: "上次位置", indoor: "室内", outdoor: "户外",
@@ -57,9 +55,8 @@ const copy = {
     kitCopySunglasses: "阳光明亮。", kitCopyJacket: "带一件外套会更舒服。", kitCopyCoat: "外出注意保暖。",
     kitCopyTee: "轻便穿着即可。", balanced: "体感平衡", coldBite: "冷感明显", chilly: "偏凉", warm: "偏暖",
     highHeat: "高温", humidWarm: "湿热", stickyWarm: "湿热", dampAir: "潮湿", dampChill: "湿冷", stickyAir: "潮湿",
-    oppressive: "闷热", dryAir: "空气偏干", dryChill: "干冷", comfortBalanced: "整体感觉舒适。",
-    comfortDamp: "湿度让体感更重。", comfortDry: "空气较干。", comfortCold: "偏凉，建议加一层。",
-    comfortHot: "高温时减少剧烈活动。", sportIndoor: "更适合室内活动。", sportOutdoor: "适合户外活动。"
+    oppressive: "闷热", dryAir: "空气偏干", dryChill: "干冷",
+    sportIndoor: "更适合室内活动。", sportOutdoor: "适合户外活动。"
   }
 };
 
@@ -102,9 +99,6 @@ const WEATHER_ICON_SLUGS = {
   storm: "thunderstorms-day-rain"
 };
 
-const DAMP_COMFORT_LEVELS = new Set(["dampAir", "dampChill", "humidWarm", "stickyWarm", "stickyAir", "oppressive"]);
-const DRY_COMFORT_LEVELS = new Set(["dryAir", "dryChill"]);
-const COLD_COMFORT_LEVELS = new Set(["coldBite", "chilly"]);
 const ALERT_SYMBOLS = { stormAlert: "ϟ", heatAlert: "☀", rainAlert: "☂", uvAlert: "◉" };
 
 const $ = (selector) => document.querySelector(selector);
@@ -166,17 +160,13 @@ function installIconFallbacks(root) {
   });
 }
 
-function comfortDescription(level) {
-  if (DAMP_COMFORT_LEVELS.has(level)) return t("comfortDamp");
-  if (DRY_COMFORT_LEVELS.has(level)) return t("comfortDry");
-  if (COLD_COMFORT_LEVELS.has(level)) return t("comfortCold");
-  if (level === "highHeat") return t("comfortHot");
-  return t("comfortBalanced");
-}
-
 function formatTemp(value) {
   const temperature = state.unit === "fahrenheit" ? value * 9 / 5 + 32 : value;
   return `${Math.round(temperature)}°`;
+}
+
+function formatTempWithUnit(value) {
+  return `${formatTemp(value)}${state.unit === "fahrenheit" ? "F" : "C"}`;
 }
 
 function formatWind(value) {
@@ -464,7 +454,7 @@ function render() {
   template.querySelector("#place").textContent = placeLabel(state.place);
   template.querySelector("#condition").textContent = t(type === "rain" ? "rainCondition" : type);
   template.querySelector("#condition-icon").innerHTML = weatherIcon(type);
-  template.querySelector("#summary").textContent = `${t("feels")} ${formatTemp(current.apparent_temperature)} · ${t(comfortLevel)}`;
+  template.querySelector("#summary").textContent = `${t("feels")} ${formatTempWithUnit(current.apparent_temperature)} · ${t(comfortLevel)}`;
   template.querySelector("#temperature").textContent = formatTemp(current.temperature_2m).replace("°", "");
   template.querySelector("#temperature-unit").textContent = state.unit === "fahrenheit" ? "°F" : "°C";
   template.querySelector("#feels-like").textContent = `${t("feels")} ${formatTemp(current.apparent_temperature)}`;
@@ -474,8 +464,6 @@ function render() {
   template.querySelector("#uv").textContent = Math.round(current.uv_index);
   template.querySelector("#kit-title").textContent = t(kitTitle);
   template.querySelector("#kit-copy").textContent = t(kitCopy);
-  template.querySelector("#comfort-title").textContent = t(comfortLevel);
-  template.querySelector("#comfort-copy").textContent = comfortDescription(comfortLevel);
   template.querySelector("#sport-title").textContent = t(sport);
   template.querySelector("#sport-copy").textContent = t(sport === "indoor" ? "sportIndoor" : "sportOutdoor");
 

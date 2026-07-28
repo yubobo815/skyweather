@@ -99,6 +99,8 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await t.test(`${viewport.width}px: saved location, forecast data, and layout`, async () => {
       await assert.doesNotReject(() => page.waitForTimeout(50));
       assert.match(await page.locator("#place").textContent(), /Last location, Australia/);
+      assert.equal(await page.locator("#summary").textContent(), "Feels like 22°C · Balanced");
+      assert.equal(await page.locator(".insights .insight").count(), 2);
       assert.equal(await page.locator("#hourly article").count(), 12);
       assert.match(await page.locator("#hourly article").first().textContent(), /Now\s+.*21/);
       assert.equal((await page.locator("#hourly article").first().textContent()).includes("99"), false);
@@ -109,6 +111,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
 
     await page.getByRole("button", { name: "中" }).click();
     await assert.doesNotReject(() => page.getByText("未来 12 小时", { exact: true }).waitFor());
+    assert.equal(await page.locator("#summary").textContent(), "体感 22°C · 体感平衡");
     assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "当前降雨");
     assert.match(await page.locator("#hourly article").first().textContent(), /现在/);
 
@@ -124,7 +127,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await page.emulateMedia({ colorScheme: "dark" });
     await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
-    assert.match(await page.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor), /rgb\(8, 27, 43\)/);
+    assert.match(await page.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor), /rgb\(25, 27, 32\)/);
     await page.emulateMedia({ colorScheme: "light" });
     await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
     await context.close();
