@@ -111,6 +111,19 @@ const $ = (selector) => document.querySelector(selector);
 const locale = () => state.language === "zh" ? "zh-CN" : "en-US";
 const t = (key) => uiCopy[state.language][key] || forecastCopy[state.language][key] || copy[state.language][key] || key;
 
+function syncSystemTheme() {
+  const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = darkMode ? "dark" : "light";
+}
+
+const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+syncSystemTheme();
+if (systemTheme.addEventListener) {
+  systemTheme.addEventListener("change", syncSystemTheme);
+} else {
+  systemTheme.addListener(syncSystemTheme);
+}
+
 function readStorage(key) {
   try {
     return localStorage.getItem(key);

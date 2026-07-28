@@ -120,6 +120,13 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     assert.match(after, /mph$/);
     assert.match(await page.locator("#temperature-unit").textContent(), /°F/);
     assert.equal(await page.locator("body").evaluate((body) => body.scrollWidth <= window.innerWidth), true);
+
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
+    assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
+    assert.match(await page.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor), /rgb\(8, 27, 43\)/);
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
     await context.close();
   }
 });
