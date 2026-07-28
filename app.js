@@ -11,6 +11,7 @@ import {
 const API_URL = "https://api.open-meteo.com/v1/forecast";
 const GEOCODER_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const SAVED_PLACES_KEY = "breezo-saved";
+const LAST_PLACE_KEY = "breezo-last-place";
 
 const state = {
   language: localStorage.getItem("breezo-language") || "en",
@@ -214,6 +215,7 @@ async function loadPlace(place, requestId = ++state.requestId) {
     state.place = place;
     state.weather = weather;
     state.fetchedAt = new Date();
+    localStorage.setItem(LAST_PLACE_KEY, JSON.stringify(place));
     render();
     setStatus();
   } catch {
@@ -226,6 +228,14 @@ function savedPlaces() {
     return JSON.parse(localStorage.getItem(SAVED_PLACES_KEY) || "[]");
   } catch {
     return [];
+  }
+}
+
+function lastPlace() {
+  try {
+    return JSON.parse(localStorage.getItem(LAST_PLACE_KEY) || "null");
+  } catch {
+    return null;
   }
 }
 
@@ -490,3 +500,8 @@ document.querySelectorAll("[data-language]").forEach((button) => {
 });
 
 applyLanguage();
+
+const previousPlace = lastPlace();
+if (previousPlace?.latitude != null && previousPlace?.longitude != null) {
+  loadPlace(previousPlace);
+}
