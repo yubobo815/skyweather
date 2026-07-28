@@ -21,6 +21,7 @@ const state = {
   statusKey: null,
   fetchedAt: null
 };
+let lastForegroundRefreshAt = 0;
 
 const copy = {
   en: {
@@ -240,7 +241,7 @@ async function getWeather(latitude, longitude) {
     forecast_days: "10",
     forecast_hours: "24"
   });
-  const response = await fetch(`${API_URL}?${params}`);
+  const response = await fetch(`${API_URL}?${params}`, { cache: "no-store" });
   if (!response.ok) throw new Error("api");
   return response.json();
 }
@@ -563,6 +564,14 @@ function changeLanguage(language) {
   render();
 }
 
+function refreshWhenVisible() {
+  if (document.visibilityState === "hidden" || !state.place) return;
+  const now = Date.now();
+  if (now - lastForegroundRefreshAt < 1000) return;
+  lastForegroundRefreshAt = now;
+  loadPlace(state.place);
+}
+
 $("#search-button").addEventListener("click", handleSearch);
 $("#city-search").addEventListener("keydown", (event) => {
   if (event.key === "Enter") handleSearch();
@@ -572,6 +581,8 @@ $("#unit-toggle").addEventListener("click", toggleUnit);
 document.querySelectorAll("[data-language]").forEach((button) => {
   button.addEventListener("click", () => changeLanguage(button.dataset.language));
 });
+window.addEventListener("pageshow", refreshWhenVisible);
+document.addEventListener("visibilitychange", refreshWhenVisible);
 
 applyLanguage();
 
