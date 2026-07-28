@@ -10,7 +10,6 @@
   --accent-soft: #e6effc;
   --teal: #42b8b2;
   --sky: #5bafe2;
-  --amber: #e5a93f;
   --coral: #e96f5b;
   --shadow: 0 12px 30px rgba(32, 33, 36, 0.055);
 }
@@ -26,7 +25,6 @@
   --accent-soft: #233a5c;
   --teal: #61ccc6;
   --sky: #6db9ed;
-  --amber: #f3c56b;
   --coral: #f38a78;
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
 }
@@ -56,7 +54,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 }
 
 .app-shell { width: min(100%, 1000px); margin: auto; padding: 26px clamp(16px, 4vw, 40px) 58px; }
-.topbar, .header-actions, .language-toggle, .search-row, .saved-cities, .section-heading, .freshness, .rain-callout, .condition-heading { display: flex; align-items: center; }
+.topbar, .header-actions, .language-toggle, .search-row, .saved-cities, .section-heading, .freshness, .condition-heading { display: flex; align-items: center; }
 .topbar { justify-content: space-between; gap: 12px; }
 .header-actions, .language-toggle { gap: 5px; }
 
@@ -121,17 +119,9 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .metrics span { display: block; color: var(--muted); font-size: 12px; }
 .metrics strong { color: var(--ink); font-size: 18px; }
 
-.alerts { display: grid; gap: 7px; margin-top: 14px; }
-.alert { display: flex; align-items: center; gap: 10px; padding: 8px 0 8px 12px; color: #40506a; border: 0; border-left: 3px solid #e5a93f; background: transparent; font-size: 14px; }
-.alert strong { color: var(--amber); }
-.alert-storm { border-left-color: var(--sky); background: transparent; }
-.alert-storm strong { color: #0891b2; }
-.alert-heat { border-left-color: var(--coral); background: transparent; }
-.alert-heat strong { color: #ea580c; }
-.rain-callout { gap: 11px; margin-top: 14px; padding: 8px 0 8px 12px; border: 0; border-left: 3px solid var(--sky); border-radius: 0; background: transparent; }
-.rain-callout-icon { display: grid; width: 26px; height: 26px; place-items: center; color: var(--accent-dark); border-radius: 0; background: transparent; font-size: 17px; }
-.rain-callout p { margin: 0; color: var(--muted); font-size: 12px; font-weight: 750; }
-.rain-callout strong { display: block; margin-top: 1px; color: var(--accent-dark); font-size: 14px; }
+.weather-brief { margin-top: 16px; padding: 0 2px; }
+.weather-brief .eyebrow { margin-bottom: 5px; }
+.weather-brief > p:last-child { max-width: 720px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
 
 .insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin-top: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
 .insight { display: flex; justify-content: space-between; gap: 8px; min-height: 132px; padding: 18px; border: 0; border-right: 1px solid var(--line); background: transparent; }
@@ -197,14 +187,8 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 :root[data-theme="dark"] .forecast article.forecast-row,
 :root[data-theme="dark"] .insight,
 :root[data-theme="dark"] .hourly article { border-color: var(--line); }
-:root[data-theme="dark"] .rain-callout { border-left-color: var(--sky); background: transparent; }
-:root[data-theme="dark"] .rain-callout-icon { color: var(--accent-dark); background: transparent; }
-:root[data-theme="dark"] .rain-callout p { color: var(--muted); }
 :root[data-theme="dark"] .save-city:hover { background: #5d91dd; }
 :root[data-theme="dark"] .forecast-temperature i { background: #434d5a; }
-:root[data-theme="dark"] .alert { color: #f4d49a; border-left-color: #c99842; background: transparent; }
-:root[data-theme="dark"] .alert-storm { color: #bfece7; border-left-color: var(--sky); background: transparent; }
-:root[data-theme="dark"] .alert-heat { color: #ffd5a5; border-left-color: var(--coral); background: transparent; }
 
 @media (max-width: 640px) {
   .app-shell { padding-top: 15px; }
@@ -216,8 +200,8 @@ button:focus-visible, input:focus-visible, a:focus-visible {
   .temperature > span { font-size: 24px; }
   .metrics article { padding: 11px 8px; }
   .metrics strong { font-size: 16px; }
-  .alerts, .rain-callout { margin-top: 11px; }
-  .alert { font-size: 13px; }
+  .weather-brief { margin-top: 13px; }
+  .weather-brief > p:last-child { font-size: 14px; }
   .insights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .insight { min-height: 124px; padding: 15px; }
   .insight h2 { font-size: 18px; }

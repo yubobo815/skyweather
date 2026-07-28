@@ -4,7 +4,6 @@ import {
   localizedPlaceLabels,
   rainTiming,
   toggleSavedPlace,
-  weatherAlerts,
   weatherType
 } from "./logic.mjs";
 
@@ -28,7 +27,7 @@ const copy = {
     searchLabel: "Search a city", search: "Search a city", welcome: "Weather that fits your day",
     welcomeCopy: "Search a city or use your location to get started.", humidity: "Humidity", wind: "Wind",
     rain: "Rain", rainNow: "Rain now", uv: "UV index", todaysKit: "Today's kit", sport: "Sport",
-    outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", rainOutlook: "Rain outlook",
+    outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", briefTitle: "Today at a glance",
     feels: "Feels like", save: "Save city", unsave: "Saved", loading: "Getting the forecast...",
     locationError: "We could not get your location.", searchError: "City not found. Try another name.",
     current: "Current location", lastLocation: "Last location", indoor: "Indoor", outdoor: "Outdoor", clear: "Clear", partly: "Partly cloudy",
@@ -40,13 +39,16 @@ const copy = {
     kitCopyTee: "Comfortable for light layers.", balanced: "Balanced", coldBite: "Cold bite", chilly: "Chilly",
     warm: "Warm feel", highHeat: "Heat stress", humidWarm: "Humid warm", stickyWarm: "Sticky warm",
     dampAir: "Damp air", dampChill: "Damp chill", stickyAir: "Sticky air", oppressive: "Oppressive",
-    dryAir: "Dry air", dryChill: "Dry chill",
+    dryAir: "Dry air", dryChill: "Dry chill", briefBase: "{condition} today, with a high of {high} and low of {low}.",
+    briefRainNow: "Rain is falling now.", briefRainAt: "Rain may begin around {time}.", briefDry: "No meaningful rain is expected over the next 12 hours.",
+    briefHighUv: "UV will be high, so use sun protection.", briefHeat: "It will be hot, so take it easy outdoors.",
+    briefBreezy: "It will be breezy at times.",
     sportIndoor: "Better for indoor plans.", sportOutdoor: "Good conditions for being outside."
   },
   zh: {
     searchLabel: "搜索城市", search: "搜索城市", welcome: "适合你今天的天气", welcomeCopy: "搜索城市或使用当前位置开始。",
     humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线", todaysKit: "今日装备",
-    sport: "运动", outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", rainOutlook: "降雨提示",
+    sport: "运动", outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
     feels: "体感", save: "收藏城市", unsave: "已收藏", loading: "正在获取天气...", locationError: "无法获取当前位置。",
     searchError: "找不到这个城市，请换个名称。", current: "当前位置", lastLocation: "上次位置", indoor: "室内", outdoor: "户外",
     clear: "晴朗", partly: "局部多云", cloudy: "多云", fog: "有雾", rainCondition: "有雨", snow: "下雪", storm: "雷暴",
@@ -55,7 +57,10 @@ const copy = {
     kitCopySunglasses: "阳光明亮。", kitCopyJacket: "带一件外套会更舒服。", kitCopyCoat: "外出注意保暖。",
     kitCopyTee: "轻便穿着即可。", balanced: "体感平衡", coldBite: "冷感明显", chilly: "偏凉", warm: "偏暖",
     highHeat: "高温", humidWarm: "湿热", stickyWarm: "湿热", dampAir: "潮湿", dampChill: "湿冷", stickyAir: "潮湿",
-    oppressive: "闷热", dryAir: "空气偏干", dryChill: "干冷",
+    oppressive: "闷热", dryAir: "空气偏干", dryChill: "干冷", briefBase: "今天{condition}，最高 {high}，最低 {low}。",
+    briefRainNow: "当前有雨。", briefRainAt: "预计 {time} 起可能有雨。", briefDry: "未来 12 小时预计没有明显降雨。",
+    briefHighUv: "紫外线较强，外出注意防晒。", briefHeat: "天气较热，户外活动注意休息。",
+    briefBreezy: "部分时段风会比较大。",
     sportIndoor: "更适合室内活动。", sportOutdoor: "适合户外活动。"
   }
 };
@@ -63,14 +68,12 @@ const copy = {
 const forecastCopy = {
   en: {
     hourly: "Next 12 hours", hourlyForecast: "Hourly forecast", outlook: "Next 10 days", now: "Now",
-    rainAt: "Rain from {time}", dryHours: "No rain expected", stormAlert: "Storm risk in the next 12 hours",
-    heatAlert: "High heat today", rainAlert: "Heavy rain likely", uvAlert: "High UV today", updated: "Updated {time}",
+    rainAt: "Rain from {time}", dryHours: "No rain expected", updated: "Updated {time}",
     refresh: "Refresh forecast"
   },
   zh: {
     hourly: "未来 12 小时", hourlyForecast: "逐小时预报", outlook: "未来 10 天", now: "现在",
-    rainAt: "{time} 起可能有雨", dryHours: "未来暂无降雨", stormAlert: "未来 12 小时可能有雷暴",
-    heatAlert: "今天高温", rainAlert: "可能有强降雨", uvAlert: "今天紫外线强", updated: "更新于 {time}",
+    rainAt: "{time} 起可能有雨", dryHours: "未来暂无降雨", updated: "更新于 {time}",
     refresh: "刷新天气"
   }
 };
@@ -98,8 +101,6 @@ const WEATHER_ICON_SLUGS = {
   snow: "snow",
   storm: "thunderstorms-day-rain"
 };
-
-const ALERT_SYMBOLS = { stormAlert: "ϟ", heatAlert: "☀", rainAlert: "☂", uvAlert: "◉" };
 
 const $ = (selector) => document.querySelector(selector);
 const locale = () => state.language === "zh" ? "zh-CN" : "en-US";
@@ -187,8 +188,9 @@ function formatForecastDay(date, index) {
   return new Intl.DateTimeFormat(locale(), options).format(new Date(`${date}T12:00:00`));
 }
 
-function phrase(key, value) {
-  return t(key).replace("{time}", value);
+function phrase(key, values) {
+  const replacements = typeof values === "object" ? values : { time: values };
+  return Object.entries(replacements).reduce((text, [name, value]) => text.replace(`{${name}}`, value), t(key));
 }
 
 function applyLanguage() {
@@ -355,26 +357,22 @@ function upcomingHours() {
   })];
 }
 
-function renderAlerts(root, hours) {
-  const alerts = weatherAlerts({
-    current: {
-      weatherCode: state.weather.current.weather_code,
-      apparentTemperature: state.weather.current.apparent_temperature,
-      uvIndex: state.weather.current.uv_index
-    },
-    dailyMax: state.weather.daily.temperature_2m_max[0],
-    dailyUvMax: state.weather.daily.uv_index_max?.[0] ?? state.weather.current.uv_index,
-    hours
-  });
-  const section = root.querySelector("#alerts");
-  section.hidden = alerts.length === 0;
+function weatherBrief(type, current, hours) {
+  const high = state.weather.daily.temperature_2m_max[0];
+  const low = state.weather.daily.temperature_2m_min[0];
+  const dailyUv = state.weather.daily.uv_index_max?.[0] ?? current.uv_index;
+  const rainIndex = rainTiming(hours);
+  const sentences = [phrase("briefBase", {
+    condition: t(type === "rain" ? "rainCondition" : type),
+    high: formatTempWithUnit(high),
+    low: formatTempWithUnit(low)
+  })];
 
-  alerts.forEach((alert) => {
-    const item = document.createElement("div");
-    item.className = `alert alert-${alert.replace("Alert", "")}`;
-    item.innerHTML = `<strong>${ALERT_SYMBOLS[alert]}</strong><span>${t(alert)}</span>`;
-    section.append(item);
-  });
+  sentences.push(rainIndex === 0 ? t("briefRainNow") : rainIndex > 0 ? phrase("briefRainAt", { time: formatHour(hours[rainIndex].time) }) : t("briefDry"));
+  if (dailyUv >= 8) sentences.push(t("briefHighUv"));
+  else if (high >= 34 || current.apparent_temperature >= 34) sentences.push(t("briefHeat"));
+  else if (Math.max(...hours.map(hour => hour.windSpeed)) >= 28) sentences.push(t("briefBreezy"));
+  return sentences.join(state.language === "zh" ? "" : " ");
 }
 
 function kitRecommendation(type, current) {
@@ -471,7 +469,7 @@ function render() {
   const rainIndex = rainTiming(hours);
   const rainMessage = rainIndex >= 0 ? phrase("rainAt", formatHour(hours[rainIndex].time)) : t("dryHours");
   template.querySelector("#rain-timing").textContent = rainMessage;
-  template.querySelector("#rain-outlook").textContent = rainMessage;
+  template.querySelector("#weather-brief").textContent = weatherBrief(type, current, hours);
 
   const root = $("#weather");
   root.replaceChildren(template);
@@ -480,7 +478,6 @@ function render() {
   root.querySelector(".metrics").setAttribute("aria-label", t("weatherDetails"));
   renderHourlyForecast(root, hours);
   renderDailyForecast(root);
-  renderAlerts(root, hours);
   renderSavedCities();
   installIconFallbacks(root);
 

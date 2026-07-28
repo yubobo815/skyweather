@@ -40,15 +40,6 @@ export function rainTiming(hours) {
   return hours.findIndex(hour => hour.precipitation >= 0.2 || hour.precipitationProbability >= 50);
 }
 
-export function weatherAlerts({ current, dailyMax, dailyUvMax, hours }) {
-  const alerts = [];
-  if (weatherType(current.weatherCode) === "storm" || hours.some(hour => weatherType(hour.weatherCode) === "storm")) alerts.push("stormAlert");
-  if (current.apparentTemperature >= 34 || dailyMax >= 35) alerts.push("heatAlert");
-  if (hours.some(hour => hour.precipitation >= 3 || (hour.precipitation >= 1 && hour.precipitationProbability >= 80))) alerts.push("rainAlert");
-  if (dailyUvMax >= 8) alerts.push("uvAlert");
-  return alerts;
-}
-
 const commonCityLabels = {
   2158177: { en: { name: "Melbourne", country: "Australia" }, zh: { name: "墨尔本", country: "澳大利亚" } },
   2147714: { en: { name: "Sydney", country: "Australia" }, zh: { name: "悉尼", country: "澳大利亚" } },

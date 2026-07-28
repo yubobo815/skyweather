@@ -104,7 +104,8 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.locator("#hourly article").count(), 12);
       assert.match(await page.locator("#hourly article").first().textContent(), /Now\s+.*21/);
       assert.equal((await page.locator("#hourly article").first().textContent()).includes("99"), false);
-      await assert.doesNotReject(() => page.getByText("High UV today", { exact: true }).waitFor());
+      assert.equal(await page.locator("#weather-brief").textContent(), "Rain today, with a high of 24°C and low of 14°C. Rain is falling now. UV will be high, so use sun protection.");
+      assert.equal(await page.locator("#alerts").count(), 0);
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
       assert.equal(await page.locator("body").evaluate((body) => body.scrollWidth <= window.innerWidth), true);
     });
@@ -112,6 +113,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await page.getByRole("button", { name: "中" }).click();
     await assert.doesNotReject(() => page.getByText("未来 12 小时", { exact: true }).waitFor());
     assert.equal(await page.locator("#summary").textContent(), "体感 22°C · 体感平衡");
+    assert.equal(await page.locator("#weather-brief").textContent(), "今天有雨，最高 24°C，最低 14°C。当前有雨。紫外线较强，外出注意防晒。");
     assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "当前降雨");
     assert.match(await page.locator("#hourly article").first().textContent(), /现在/);
 

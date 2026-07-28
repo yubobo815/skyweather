@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, toggleSavedPlace, weatherAlerts, weatherType } from "../logic.mjs";
+import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, toggleSavedPlace, weatherType } from "../logic.mjs";
 
 test("weather codes map to user-facing conditions", () => {
   assert.equal(weatherType(0), "clear");
@@ -40,26 +40,6 @@ test("rain timing identifies the first meaningful wet hour", () => {
   ];
   assert.equal(rainTiming(hours), 2);
   assert.equal(rainTiming(hours.slice(0, 2)), -1);
-});
-
-test("alerts cover storms, heat, heavy rain, and high UV", () => {
-  const alerts = weatherAlerts({
-    current: { weatherCode: 0, apparentTemperature: 35, uvIndex: 0 },
-    dailyMax: 36,
-    dailyUvMax: 9,
-    hours: [{ weatherCode: 95, precipitation: 4, precipitationProbability: 90 }]
-  });
-  assert.deepEqual(alerts, ["stormAlert", "heatAlert", "rainAlert", "uvAlert"]);
-  assert.equal(alerts.length, 4);
-});
-
-test("high UV alert uses the daily maximum, not the UV at the current hour", () => {
-  assert.deepEqual(weatherAlerts({
-    current: { weatherCode: 0, apparentTemperature: 20, uvIndex: 0 },
-    dailyMax: 22,
-    dailyUvMax: 8,
-    hours: []
-  }), ["uvAlert"]);
 });
 
 test("common city labels remain bilingual when searched in Chinese", () => {
