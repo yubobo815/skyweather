@@ -14,8 +14,8 @@ const SAVED_PLACES_KEY = "breezo-saved";
 const LAST_PLACE_KEY = "breezo-last-place";
 
 const state = {
-  language: localStorage.getItem("breezo-language") || "en",
-  unit: localStorage.getItem("breezo-unit") || "celsius",
+  language: readStorage("breezo-language") || "en",
+  unit: readStorage("breezo-unit") || "celsius",
   place: null,
   weather: null,
   requestId: 0,
@@ -27,11 +27,11 @@ const copy = {
   en: {
     searchLabel: "Search a city", search: "Search a city", welcome: "Weather that fits your day",
     welcomeCopy: "Search a city or use your location to get started.", humidity: "Humidity", wind: "Wind",
-    rain: "Rain", uv: "UV index", todaysKit: "Today's kit", comfort: "Comfort", sport: "Sport",
+    rain: "Rain", rainNow: "Rain now", uv: "UV index", todaysKit: "Today's kit", comfort: "Comfort", sport: "Sport",
     outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", rainOutlook: "Rain outlook",
     feels: "Feels like", save: "Save city", unsave: "Saved", loading: "Getting the forecast...",
     locationError: "We could not get your location.", searchError: "City not found. Try another name.",
-    current: "Current location", indoor: "Indoor", outdoor: "Outdoor", clear: "Clear", partly: "Partly cloudy",
+    current: "Current location", lastLocation: "Last location", indoor: "Indoor", outdoor: "Outdoor", clear: "Clear", partly: "Partly cloudy",
     cloudy: "Cloudy", fog: "Foggy", rainCondition: "Rain", snow: "Snow", storm: "Storm",
     kitUmbrella: "Umbrella", kitSunscreen: "Sunscreen", kitSunglasses: "Sunglasses", kitJacket: "Light jacket",
     kitCoat: "Warm coat", kitTee: "T-shirt", kitCopyUmbrella: "Rain is likely today.",
@@ -47,10 +47,10 @@ const copy = {
   },
   zh: {
     searchLabel: "搜索城市", search: "搜索城市", welcome: "适合你今天的天气", welcomeCopy: "搜索城市或使用当前位置开始。",
-    humidity: "湿度", wind: "风速", rain: "降雨", uv: "紫外线", todaysKit: "今日装备", comfort: "舒适度",
+    humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线", todaysKit: "今日装备", comfort: "舒适度",
     sport: "运动", outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", rainOutlook: "降雨提示",
     feels: "体感", save: "收藏城市", unsave: "已收藏", loading: "正在获取天气...", locationError: "无法获取当前位置。",
-    searchError: "找不到这个城市，请换个名称。", current: "当前位置", indoor: "室内", outdoor: "户外",
+    searchError: "找不到这个城市，请换个名称。", current: "当前位置", lastLocation: "上次位置", indoor: "室内", outdoor: "户外",
     clear: "晴朗", partly: "局部多云", cloudy: "多云", fog: "有雾", rainCondition: "有雨", snow: "下雪", storm: "雷暴",
     kitUmbrella: "雨伞", kitSunscreen: "防晒霜", kitSunglasses: "太阳镜", kitJacket: "薄外套", kitCoat: "保暖外套",
     kitTee: "短袖", kitCopyUmbrella: "今天可能会下雨。", kitCopySunscreen: "紫外线较强。",
@@ -82,11 +82,12 @@ const uiCopy = {
   en: {
     language: "Language", switchUnit: "Switch temperature unit", useLocation: "Use current location",
     searchWeather: "Search weather", savedCities: "Saved cities", weatherDetails: "Weather details",
-    apiError: "Weather data is unavailable. Please try again.", geoUnsupported: "Your browser does not support location."
+    apiError: "Weather data is unavailable. Please try again.", storageError: "Forecast loaded, but this browser could not save your last location.",
+    geoUnsupported: "Your browser does not support location."
   },
   zh: {
     language: "语言", switchUnit: "切换温度单位", useLocation: "使用当前位置", searchWeather: "搜索天气",
-    savedCities: "已收藏城市", weatherDetails: "天气详情", apiError: "天气数据暂时不可用，请重试。",
+    savedCities: "已收藏城市", weatherDetails: "天气详情", apiError: "天气数据暂时不可用，请重试。", storageError: "天气已加载，但浏览器无法保存上次位置。",
     geoUnsupported: "你的浏览器不支持定位。"
   }
 };
@@ -110,6 +111,23 @@ const $ = (selector) => document.querySelector(selector);
 const locale = () => state.language === "zh" ? "zh-CN" : "en-US";
 const t = (key) => uiCopy[state.language][key] || forecastCopy[state.language][key] || copy[state.language][key] || key;
 
+function readStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function setStatus(key = null) {
   state.statusKey = key;
   $("#status").textContent = key ? t(key) : "";
@@ -118,7 +136,21 @@ function setStatus(key = null) {
 function weatherIcon(type) {
   const label = t(type === "rain" ? "rainCondition" : type);
   const slug = WEATHER_ICON_SLUGS[type] || WEATHER_ICON_SLUGS.partly;
-  return `<img class="weather-icon-img" src="https://cdn.jsdelivr.net/npm/@meteocons/svg/fill/${slug}.svg" alt="${label}" loading="eager" decoding="async" />`;
+  const fallback = { clear: "☀", partly: "⛅", cloudy: "☁", fog: "≋", rain: "☂", snow: "❄", storm: "ϟ" }[type] || "⛅";
+  return `<img class="weather-icon-img" src="https://cdn.jsdelivr.net/npm/@meteocons/svg/fill/${slug}.svg" alt="${label}" data-fallback="${fallback}" loading="eager" decoding="async" />`;
+}
+
+function installIconFallbacks(root) {
+  root.querySelectorAll("img.weather-icon-img").forEach((image) => {
+    image.addEventListener("error", () => {
+      const fallback = document.createElement("span");
+      fallback.className = "weather-icon-fallback";
+      fallback.setAttribute("role", "img");
+      fallback.setAttribute("aria-label", image.alt);
+      fallback.textContent = image.dataset.fallback;
+      image.replaceWith(fallback);
+    }, { once: true });
+  });
 }
 
 function comfortDescription(level) {
@@ -186,13 +218,13 @@ async function getWeather(latitude, longitude) {
     longitude,
     current: "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,uv_index",
     hourly: "temperature_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m",
-    daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+    daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max",
     timezone: "auto",
     forecast_days: "10",
     forecast_hours: "24"
   });
   const response = await fetch(`${API_URL}?${params}`);
-  if (!response.ok) throw new Error("forecast");
+  if (!response.ok) throw new Error("api");
   return response.json();
 }
 
@@ -215,9 +247,9 @@ async function loadPlace(place, requestId = ++state.requestId) {
     state.place = place;
     state.weather = weather;
     state.fetchedAt = new Date();
-    localStorage.setItem(LAST_PLACE_KEY, JSON.stringify(place));
+    const savedLastPlace = writeStorage(LAST_PLACE_KEY, JSON.stringify(persistedPlace(place)));
     render();
-    setStatus();
+    setStatus(savedLastPlace ? null : "storageError");
   } catch {
     if (isCurrentRequest(requestId, state.requestId)) setStatus("apiError");
   }
@@ -225,7 +257,7 @@ async function loadPlace(place, requestId = ++state.requestId) {
 
 function savedPlaces() {
   try {
-    return JSON.parse(localStorage.getItem(SAVED_PLACES_KEY) || "[]");
+    return JSON.parse(readStorage(SAVED_PLACES_KEY) || "[]");
   } catch {
     return [];
   }
@@ -233,10 +265,19 @@ function savedPlaces() {
 
 function lastPlace() {
   try {
-    return JSON.parse(localStorage.getItem(LAST_PLACE_KEY) || "null");
+    const place = JSON.parse(readStorage(LAST_PLACE_KEY) || "null");
+    return place ? persistedPlace(place) : null;
   } catch {
     return null;
   }
+}
+
+function persistedPlace(place) {
+  return {
+    ...place,
+    isCurrentLocation: false,
+    isLastLocation: Boolean(place.isCurrentLocation || place.isLastLocation)
+  };
 }
 
 function isSaved() {
@@ -244,14 +285,17 @@ function isSaved() {
 }
 
 function toggleSaved() {
-  const nextSavedPlaces = toggleSavedPlace(savedPlaces(), state.place);
-  localStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(nextSavedPlaces));
+  const nextSavedPlaces = toggleSavedPlace(savedPlaces(), persistedPlace(state.place));
+  if (!writeStorage(SAVED_PLACES_KEY, JSON.stringify(nextSavedPlaces))) {
+    setStatus("storageError");
+    return;
+  }
   render();
 }
 
 function placeLabel(place) {
   const localized = place.labels?.[state.language];
-  const name = place.isCurrentLocation ? t("current") : localized?.name || place.name;
+  const name = place.isCurrentLocation ? t("current") : place.isLastLocation ? t("lastLocation") : localized?.name || place.name;
   const country = localized?.country || place.country;
   return country ? `${name}, ${country}` : name;
 }
@@ -275,7 +319,7 @@ function renderSavedCities() {
     const cityButton = document.createElement("button");
     cityButton.className = "saved-city-chip";
     cityButton.type = "button";
-    cityButton.textContent = place.isCurrentLocation ? t("current") : place.labels?.[state.language]?.name || place.name;
+    cityButton.textContent = place.isCurrentLocation ? t("current") : place.isLastLocation ? t("lastLocation") : place.labels?.[state.language]?.name || place.name;
     cityButton.addEventListener("click", () => loadPlace(place));
     section.append(cityButton);
   });
@@ -283,9 +327,20 @@ function renderSavedCities() {
 
 function upcomingHours() {
   const hourly = state.weather.hourly;
-  const currentIndex = Math.max(0, hourly.time.findIndex((time) => time >= state.weather.current.time));
-  return hourly.time.slice(currentIndex, currentIndex + 12).map((time, offset) => {
-    const index = currentIndex + offset;
+  const currentTime = new Date(state.weather.current.time).getTime();
+  const firstFutureIndex = Math.max(0, hourly.time.findIndex((time) => new Date(time).getTime() > currentTime));
+  const currentHour = {
+    time: state.weather.current.time,
+    temperature: state.weather.current.temperature_2m,
+    precipitation: state.weather.current.precipitation,
+    precipitationProbability: 0,
+    weatherCode: state.weather.current.weather_code,
+    windSpeed: state.weather.current.wind_speed_10m,
+    isCurrent: true
+  };
+
+  return [currentHour, ...hourly.time.slice(firstFutureIndex, firstFutureIndex + 11).map((time, offset) => {
+    const index = firstFutureIndex + offset;
     return {
       time,
       temperature: hourly.temperature_2m[index],
@@ -294,7 +349,7 @@ function upcomingHours() {
       weatherCode: hourly.weather_code[index],
       windSpeed: hourly.wind_speed_10m[index]
     };
-  });
+  })];
 }
 
 function renderAlerts(root, hours) {
@@ -305,6 +360,7 @@ function renderAlerts(root, hours) {
       uvIndex: state.weather.current.uv_index
     },
     dailyMax: state.weather.daily.temperature_2m_max[0],
+    dailyUvMax: state.weather.daily.uv_index_max?.[0] ?? state.weather.current.uv_index,
     hours
   });
   const section = root.querySelector("#alerts");
@@ -337,7 +393,7 @@ function renderHourlyForecast(root, hours) {
     const windSpeed = formatWind(hour.windSpeed);
     const card = document.createElement("article");
     card.innerHTML = `
-      <p>${index === 0 ? t("now") : formatHour(hour.time)}</p>
+      <p>${hour.isCurrent ? t("now") : formatHour(hour.time)}</p>
       <span class="hourly-icon">${weatherIcon(weatherType(hour.weatherCode))}</span>
       <strong>${formatTemp(hour.temperature)}</strong>
       <small class="hourly-rain">${rainChance}</small>
@@ -419,11 +475,13 @@ function render() {
   const root = $("#weather");
   root.replaceChildren(template);
   applyLanguage();
+  root.querySelector("#rain").previousElementSibling.textContent = t("rainNow");
   root.querySelector(".metrics").setAttribute("aria-label", t("weatherDetails"));
   renderHourlyForecast(root, hours);
   renderDailyForecast(root);
   renderAlerts(root, hours);
   renderSavedCities();
+  installIconFallbacks(root);
 
   root.querySelector("#updated-at").textContent = phrase(
     "updated",
@@ -478,15 +536,14 @@ function handleLocation() {
 
 function toggleUnit() {
   state.unit = state.unit === "celsius" ? "fahrenheit" : "celsius";
-  localStorage.setItem("breezo-unit", state.unit);
+  if (!writeStorage("breezo-unit", state.unit)) setStatus("storageError");
   render();
 }
 
 function changeLanguage(language) {
   state.language = language;
-  localStorage.setItem("breezo-language", language);
+  if (!writeStorage("breezo-language", language)) setStatus("storageError");
   render();
-  applyLanguage();
 }
 
 $("#search-button").addEventListener("click", handleSearch);

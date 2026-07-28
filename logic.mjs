@@ -40,12 +40,12 @@ export function rainTiming(hours) {
   return hours.findIndex(hour => hour.precipitation >= 0.2 || hour.precipitationProbability >= 50);
 }
 
-export function weatherAlerts({ current, dailyMax, hours }) {
+export function weatherAlerts({ current, dailyMax, dailyUvMax, hours }) {
   const alerts = [];
   if (weatherType(current.weatherCode) === "storm" || hours.some(hour => weatherType(hour.weatherCode) === "storm")) alerts.push("stormAlert");
   if (current.apparentTemperature >= 34 || dailyMax >= 35) alerts.push("heatAlert");
   if (hours.some(hour => hour.precipitation >= 3 || (hour.precipitation >= 1 && hour.precipitationProbability >= 80))) alerts.push("rainAlert");
-  if (current.uvIndex >= 8) alerts.push("uvAlert");
+  if (dailyUvMax >= 8) alerts.push("uvAlert");
   return alerts;
 }
 
@@ -71,8 +71,18 @@ const commonCityLabels = {
   6173331: { en: { name: "Vancouver", country: "Canada" }, zh: { name: "温哥华", country: "加拿大" } }
 };
 
+export function matchingPlace(place, alternatePlace) {
+  if (!alternatePlace) return false;
+  if (place.id != null && alternatePlace.id != null) return place.id === alternatePlace.id;
+
+  return Math.abs(place.latitude - alternatePlace.latitude) < 0.01
+    && Math.abs(place.longitude - alternatePlace.longitude) < 0.01;
+}
+
 export function localizedPlaceLabels(place, language, alternateLanguage, alternatePlace) {
   const labels = { [language]: { name: place.name, country: place.country } };
-  if (alternatePlace) labels[alternateLanguage] = { name: alternatePlace.name, country: alternatePlace.country };
+  if (matchingPlace(place, alternatePlace)) {
+    labels[alternateLanguage] = { name: alternatePlace.name, country: alternatePlace.country };
+  }
   return { ...labels, ...(commonCityLabels[place.id] || {}) };
 }

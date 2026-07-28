@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comfort, isCurrentRequest, localizedPlaceLabels, rainTiming, samePlace, toggleSavedPlace, weatherAlerts, weatherType } from "../logic.mjs";
+import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, toggleSavedPlace, weatherAlerts, weatherType } from "../logic.mjs";
 
 test("weather codes map to user-facing conditions", () => {
   assert.equal(weatherType(0), "clear");
@@ -44,12 +44,22 @@ test("rain timing identifies the first meaningful wet hour", () => {
 
 test("alerts cover storms, heat, heavy rain, and high UV", () => {
   const alerts = weatherAlerts({
-    current: { weatherCode: 0, apparentTemperature: 35, uvIndex: 9 },
+    current: { weatherCode: 0, apparentTemperature: 35, uvIndex: 0 },
     dailyMax: 36,
+    dailyUvMax: 9,
     hours: [{ weatherCode: 95, precipitation: 4, precipitationProbability: 90 }]
   });
   assert.deepEqual(alerts, ["stormAlert", "heatAlert", "rainAlert", "uvAlert"]);
   assert.equal(alerts.length, 4);
+});
+
+test("high UV alert uses the daily maximum, not the UV at the current hour", () => {
+  assert.deepEqual(weatherAlerts({
+    current: { weatherCode: 0, apparentTemperature: 20, uvIndex: 0 },
+    dailyMax: 22,
+    dailyUvMax: 8,
+    hours: []
+  }), ["uvAlert"]);
 });
 
 test("common city labels remain bilingual when searched in Chinese", () => {
@@ -57,4 +67,14 @@ test("common city labels remain bilingual when searched in Chinese", () => {
   const labels = localizedPlaceLabels(melbourne, "zh", "en", { name: "墨尔本", country: "澳大利亚" });
   assert.deepEqual(labels.en, { name: "Melbourne", country: "Australia" });
   assert.deepEqual(labels.zh, { name: "墨尔本", country: "澳大利亚" });
+});
+
+test("alternate place labels are used only for the same city", () => {
+  const place = { id: 1, name: "Springfield", country: "United States", latitude: 39.8, longitude: -89.6 };
+  assert.equal(matchingPlace(place, { ...place, name: "斯普林菲尔德" }), true);
+  assert.equal(matchingPlace(place, { id: 2, name: "Springfield", country: "United States", latitude: 44.0, longitude: -123.0 }), false);
+  assert.deepEqual(
+    localizedPlaceLabels(place, "en", "zh", { id: 2, name: "斯普林菲尔德", country: "美国", latitude: 44.0, longitude: -123.0 }),
+    { en: { name: "Springfield", country: "United States" } }
+  );
 });

@@ -2,6 +2,10 @@
   "name": "breezo",
   "private": true,
   "scripts": {
-    "test": "node --test tests/logic.test.mjs"
+    "test": "node --test tests/logic.test.mjs",
+    "test:uat": "node --test tests/browser-uat.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.61.1"
   }
 }
