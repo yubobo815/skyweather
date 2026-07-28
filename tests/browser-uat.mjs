@@ -70,6 +70,7 @@ async function openApp(browser, viewport) {
   const context = await browser.newContext({ viewport });
   await context.addInitScript((place) => {
     localStorage.setItem("breezo-last-place", JSON.stringify(place));
+    localStorage.setItem("breezo-saved", JSON.stringify([place]));
     Object.defineProperty(navigator, "geolocation", {
       configurable: true,
       value: { getCurrentPosition() { throw new Error("Geolocation must not be used with a saved last location"); } }
@@ -99,6 +100,10 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await t.test(`${viewport.width}px: saved location, forecast data, and layout`, async () => {
       await assert.doesNotReject(() => page.waitForTimeout(50));
       assert.match(await page.locator("#place").textContent(), /Last location, Australia/);
+      const removeSavedCity = page.getByRole("button", { name: "Remove Last location" });
+      assert.equal(await removeSavedCity.count(), 1);
+      await removeSavedCity.click();
+      assert.equal(await page.getByRole("button", { name: "Remove Last location" }).count(), 0);
       assert.equal(await page.locator("#summary").textContent(), "Feels like 22°C · Balanced");
       assert.equal(await page.locator(".insights").count(), 0);
       assert.equal(await page.locator("#hourly article").count(), 12);

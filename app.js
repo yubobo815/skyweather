@@ -86,12 +86,14 @@ const uiCopy = {
   en: {
     language: "Language", switchUnit: "Switch temperature unit", useLocation: "Use current location",
     searchWeather: "Search weather", savedCities: "Saved cities", weatherDetails: "Weather details",
+    removeCity: "Remove {city}",
     apiError: "Weather data is unavailable. Please try again.", storageError: "Forecast loaded, but this browser could not save your last location.",
     geoUnsupported: "Your browser does not support location."
   },
   zh: {
     language: "语言", switchUnit: "切换温度单位", useLocation: "使用当前位置", searchWeather: "搜索天气",
     savedCities: "已收藏城市", weatherDetails: "天气详情", apiError: "天气数据暂时不可用，请重试。", storageError: "天气已加载，但浏览器无法保存上次位置。",
+    removeCity: "移除{city}",
     geoUnsupported: "你的浏览器不支持定位。"
   }
 };
@@ -311,6 +313,15 @@ function toggleSaved() {
   render();
 }
 
+function removeSavedPlace(place) {
+  const nextSavedPlaces = toggleSavedPlace(savedPlaces(), persistedPlace(place));
+  if (!writeStorage(SAVED_PLACES_KEY, JSON.stringify(nextSavedPlaces))) {
+    setStatus("storageError");
+    return;
+  }
+  render();
+}
+
 function placeLabel(place) {
   const localized = place.labels?.[state.language];
   const name = place.isCurrentLocation ? t("current") : place.isLastLocation ? t("lastLocation") : localized?.name || place.name;
@@ -334,12 +345,25 @@ function renderSavedCities() {
   section.append(saveButton);
 
   savedPlaces().forEach((place) => {
+    const cityName = place.isCurrentLocation ? t("current") : place.isLastLocation ? t("lastLocation") : place.labels?.[state.language]?.name || place.name;
+    const chip = document.createElement("span");
+    chip.className = "saved-city-chip";
     const cityButton = document.createElement("button");
-    cityButton.className = "saved-city-chip";
+    cityButton.className = "saved-city-label";
     cityButton.type = "button";
-    cityButton.textContent = place.isCurrentLocation ? t("current") : place.isLastLocation ? t("lastLocation") : place.labels?.[state.language]?.name || place.name;
+    cityButton.textContent = cityName;
     cityButton.addEventListener("click", () => loadPlace(place));
-    section.append(cityButton);
+
+    const removeButton = document.createElement("button");
+    removeButton.className = "saved-city-remove";
+    removeButton.type = "button";
+    removeButton.textContent = "×";
+    removeButton.setAttribute("aria-label", phrase("removeCity", { city: cityName }));
+    removeButton.setAttribute("title", phrase("removeCity", { city: cityName }));
+    removeButton.addEventListener("click", () => removeSavedPlace(place));
+
+    chip.append(cityButton, removeButton);
+    section.append(chip);
   });
 }
 

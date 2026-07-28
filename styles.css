@@ -84,11 +84,16 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .status:empty { display: none; }
 
 .saved-cities { gap: 7px; overflow-x: auto; margin-top: 10px; padding: 7px 0 2px; }
-.saved-cities button, .save-city, .saved-city-chip { flex: 0 0 auto; min-height: 30px; padding: 0 11px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; font-weight: 750; }
-.saved-cities button, .saved-city-chip { color: var(--accent-dark); background: rgba(255, 255, 255, 0.68); }
-.saved-cities button:hover, .saved-city-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.saved-cities > button, .saved-city-chip { flex: 0 0 auto; min-height: 30px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; font-weight: 750; }
+.saved-cities > button, .saved-city-chip { color: var(--accent-dark); background: rgba(255, 255, 255, 0.68); }
+.saved-cities > button:hover, .saved-city-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
 .save-city { color: #fff; border-color: var(--accent); background: var(--accent); box-shadow: 0 6px 13px rgba(62, 125, 214, 0.16); }
 .save-city:hover { color: #fff; background: var(--accent-dark); }
+.saved-city-chip { display: inline-flex; align-items: stretch; overflow: hidden; }
+.saved-city-chip button { min-height: 28px; color: inherit; border: 0; background: transparent; font-size: inherit; font-weight: inherit; }
+.saved-city-label { max-width: 150px; padding: 0 5px 0 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved-city-chip .saved-city-remove { width: 29px; padding: 0; border-left: 1px solid var(--line); font-size: 19px; font-weight: 500; line-height: 1; }
+.saved-city-chip .saved-city-remove:hover { color: var(--coral); background: rgba(233, 111, 91, 0.1); }
 
 .weather { margin-top: 18px; }
 .empty-state { display: grid; min-height: 430px; place-content: center; text-align: center; }
@@ -162,7 +167,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 :root[data-theme="dark"] .language-toggle,
 :root[data-theme="dark"] .icon-button,
 :root[data-theme="dark"] .search-field,
-:root[data-theme="dark"] .saved-cities button,
+:root[data-theme="dark"] .saved-cities > button,
 :root[data-theme="dark"] .saved-city-chip,
 :root[data-theme="dark"] .refresh-button {
   border-color: var(--line);
