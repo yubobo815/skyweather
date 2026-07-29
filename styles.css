@@ -75,10 +75,18 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .unit-toggle:hover, .icon-button:hover, .language-toggle button:hover { border-color: var(--accent); }
 
 .search-row { gap: 8px; margin: 20px 0 4px; }
-.search-field { display: flex; flex: 1; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: rgba(255, 255, 255, 0.82); box-shadow: 0 5px 15px rgba(15, 23, 42, 0.035); }
+.search-autocomplete { position: relative; flex: 1; min-width: 0; }
+.search-field { display: flex; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: rgba(255, 255, 255, 0.82); box-shadow: 0 5px 15px rgba(15, 23, 42, 0.035); }
 .search-field input { flex: 1; min-width: 0; padding: 11px 13px; color: var(--ink); border: 0; outline: 0; background: transparent; font-weight: 650; }
 .search-field input::placeholder { color: var(--muted); }
 .search-field button { border: 0; border-left: 1px solid var(--line); border-radius: 0; color: var(--accent); background: transparent; box-shadow: none; font-size: 22px; }
+.city-suggestions { position: absolute; z-index: 10; top: calc(100% + 6px); right: 0; left: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: var(--shadow); }
+.city-suggestion { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 10px 13px; color: var(--ink); border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
+.city-suggestion:last-child { border-bottom: 0; }
+.city-suggestion:hover, .city-suggestion.is-active { background: var(--accent-soft); }
+.city-suggestion strong, .city-suggestion span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.city-suggestion strong { font-size: 14px; }
+.city-suggestion span { color: var(--muted); font-size: 12px; }
 .icon-button { font-size: 19px; }
 .status { min-height: 20px; margin: 5px 0 0; color: var(--muted); font-size: 13px; }
 .status:empty { display: none; }

@@ -23,6 +23,10 @@ const state = {
   fetchedAt: null
 };
 let lastForegroundRefreshAt = 0;
+let suggestionTimer = null;
+let suggestionRequestId = 0;
+let suggestions = [];
+let activeSuggestionIndex = -1;
 
 const copy = {
   en: {
@@ -254,14 +258,18 @@ async function getWeather(latitude, longitude) {
   return response.json();
 }
 
-async function searchCity(query, language = state.language) {
-  const params = new URLSearchParams({ name: query, count: "1", language, format: "json" });
+async function searchCities(query, language = state.language, count = 1) {
+  const params = new URLSearchParams({ name: query, count: String(count), language, format: "json" });
   const response = await fetch(`${GEOCODER_URL}?${params}`);
   if (!response.ok) throw new Error("api");
 
   const data = await response.json();
-  if (!data.results?.[0]) throw new Error("search");
-  return data.results[0];
+  if (!data.results?.length) throw new Error("search");
+  return data.results;
+}
+
+async function searchCity(query, language = state.language) {
+  return (await searchCities(query, language))[0];
 }
 
 async function loadPlace(place, requestId = ++state.requestId) {
@@ -541,6 +549,7 @@ function render() {
 async function handleSearch() {
   const query = $("#city-search").value.trim();
   if (!query) return;
+  hideSuggestions();
 
   const requestId = ++state.requestId;
   const alternateLanguage = state.language === "en" ? "zh" : "en";
@@ -556,6 +565,92 @@ async function handleSearch() {
   } catch (error) {
     if (isCurrentRequest(requestId, state.requestId)) setStatus(error.message === "search" ? "searchError" : "apiError");
   }
+}
+
+function hideSuggestions() {
+  suggestionRequestId += 1;
+  clearTimeout(suggestionTimer);
+  suggestionTimer = null;
+  suggestions = [];
+  activeSuggestionIndex = -1;
+  const list = $("#city-suggestions");
+  list.replaceChildren();
+  list.hidden = true;
+  $("#city-search").setAttribute("aria-expanded", "false");
+  $("#city-search").removeAttribute("aria-activedescendant");
+}
+
+function suggestionDetail(place) {
+  return [place.admin1, place.country].filter((value, index, values) => value && values.indexOf(value) === index).join(", ");
+}
+
+function setActiveSuggestion(index) {
+  if (!suggestions.length) return;
+  activeSuggestionIndex = (index + suggestions.length) % suggestions.length;
+  document.querySelectorAll(".city-suggestion").forEach((button, buttonIndex) => {
+    const active = buttonIndex === activeSuggestionIndex;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  $("#city-search").setAttribute("aria-activedescendant", `city-suggestion-${activeSuggestionIndex}`);
+}
+
+async function selectSuggestion(place) {
+  $("#city-search").value = place.name;
+  hideSuggestions();
+  const requestId = ++state.requestId;
+  const alternateLanguage = state.language === "en" ? "zh" : "en";
+  try {
+    const alternatePlace = await searchCity(place.name, alternateLanguage).catch(() => null);
+    if (!isCurrentRequest(requestId, state.requestId)) return;
+    place.labels = localizedPlaceLabels(place, state.language, alternateLanguage, alternatePlace);
+    await loadPlace(place, requestId);
+  } catch {
+    if (isCurrentRequest(requestId, state.requestId)) setStatus("apiError");
+  }
+}
+
+function renderSuggestions(nextSuggestions) {
+  suggestions = nextSuggestions;
+  activeSuggestionIndex = -1;
+  const list = $("#city-suggestions");
+  list.replaceChildren();
+  nextSuggestions.forEach((place, index) => {
+    const button = document.createElement("button");
+    button.id = `city-suggestion-${index}`;
+    button.className = "city-suggestion";
+    button.type = "button";
+    button.setAttribute("role", "option");
+    button.setAttribute("aria-selected", "false");
+    const name = document.createElement("strong");
+    name.textContent = place.name;
+    const detail = document.createElement("span");
+    detail.textContent = suggestionDetail(place);
+    button.append(name, detail);
+    button.addEventListener("click", () => selectSuggestion(place));
+    list.append(button);
+  });
+  list.hidden = nextSuggestions.length === 0;
+  $("#city-search").setAttribute("aria-expanded", String(nextSuggestions.length > 0));
+}
+
+function requestSuggestions() {
+  const query = $("#city-search").value.trim();
+  clearTimeout(suggestionTimer);
+  if (query.length < 2) {
+    hideSuggestions();
+    return;
+  }
+
+  const requestId = ++suggestionRequestId;
+  suggestionTimer = setTimeout(async () => {
+    try {
+      const places = await searchCities(query, state.language, 5);
+      if (requestId === suggestionRequestId) renderSuggestions(places);
+    } catch {
+      if (requestId === suggestionRequestId) hideSuggestions();
+    }
+  }, 220);
 }
 
 function handleLocation() {
@@ -603,8 +698,28 @@ function refreshWhenVisible() {
 }
 
 $("#search-button").addEventListener("click", handleSearch);
+$("#city-search").addEventListener("input", requestSuggestions);
 $("#city-search").addEventListener("keydown", (event) => {
-  if (event.key === "Enter") handleSearch();
+  if (event.key === "ArrowDown") {
+    if (suggestions.length) {
+      event.preventDefault();
+      setActiveSuggestion(activeSuggestionIndex + 1);
+    }
+  } else if (event.key === "ArrowUp") {
+    if (suggestions.length) {
+      event.preventDefault();
+      setActiveSuggestion(activeSuggestionIndex - 1);
+    }
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    if (activeSuggestionIndex >= 0) selectSuggestion(suggestions[activeSuggestionIndex]);
+    else handleSearch();
+  } else if (event.key === "Escape") {
+    hideSuggestions();
+  }
+});
+document.addEventListener("click", (event) => {
+  if (!$("#search-autocomplete").contains(event.target)) hideSuggestions();
 });
 $("#location-button").addEventListener("click", handleLocation);
 $("#unit-toggle").addEventListener("click", toggleUnit);

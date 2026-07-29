@@ -114,6 +114,12 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.match(await page.locator("#weather-brief").textContent(), /^Showers are around now, then should ease by .+\. Temperatures will reach 24°C today\. UV will be high, so use sun protection\. Keep an umbrella handy; keep your sport plans indoors\.$/);
       assert.equal(await page.locator("#alerts").count(), 0);
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
+      await page.locator("#city-search").fill("Mel");
+      const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });
+      await suggestion.waitFor();
+      await page.locator("#city-search").press("ArrowDown");
+      await page.locator("#city-search").press("Enter");
+      await page.locator("#city-suggestions").waitFor({ state: "hidden" });
       assert.equal(await page.locator("body").evaluate((body) => body.scrollWidth <= window.innerWidth), true);
     });
 
