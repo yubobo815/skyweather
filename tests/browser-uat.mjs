@@ -105,6 +105,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       await removeSavedCity.click();
       assert.equal(await page.getByRole("button", { name: "Remove Last location" }).count(), 0);
       assert.equal(await page.locator("#summary").textContent(), "Feels like 22°C · Balanced");
+      assert.equal(await page.locator(".temperature").evaluate((element) => element.style.getPropertyValue("--current-temperature-color")), "hsl(101 78% 52%)");
       assert.equal(await page.locator(".insights").count(), 0);
       assert.equal(await page.locator("#hourly article").count(), 24);
       assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-low-color")), "hsl(149 78% 52%)");

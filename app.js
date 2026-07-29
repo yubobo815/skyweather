@@ -516,6 +516,7 @@ function render() {
   template.querySelector("#condition").textContent = t(type === "rain" ? "rainCondition" : type);
   template.querySelector("#condition-icon").innerHTML = weatherIcon(type);
   template.querySelector("#summary").textContent = `${t("feels")} ${formatTempWithUnit(current.apparent_temperature)} · ${t(comfortLevel)}`;
+  template.querySelector(".temperature").style.setProperty("--current-temperature-color", temperatureColor(current.temperature_2m));
   template.querySelector("#temperature").textContent = formatTemp(current.temperature_2m).replace("°", "");
   template.querySelector("#temperature-unit").textContent = state.unit === "fahrenheit" ? "°F" : "°C";
   template.querySelector("#feels-like").textContent = `${t("feels")} ${formatTemp(current.apparent_temperature)}`;
