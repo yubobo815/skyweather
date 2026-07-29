@@ -196,8 +196,8 @@ function formatWind(value) {
   return `${Math.round(speed)} ${unit}`;
 }
 
-function temperatureColor(value) {
-  return `hsl(${temperatureHue(value)} 78% 52%)`;
+function temperatureColor(value, lightness = 52) {
+  return `hsl(${temperatureHue(value)} 78% ${lightness}%)`;
 }
 
 function formatHour(date) {
@@ -493,7 +493,7 @@ function renderDailyForecast(root) {
       </div>
       <div class="forecast-temperature">
         <small>${formatTemp(low)}</small>
-        <i aria-hidden="true"><b style="--range-start:${rangeStart}%;--range-width:${rangeWidth}%;--range-low-color:${temperatureColor(low)};--range-high-color:${temperatureColor(high)}"></b></i>
+        <i aria-hidden="true"><b style="--range-start:${rangeStart}%;--range-width:${rangeWidth}%;--range-low-color-light:${temperatureColor(low)};--range-high-color-light:${temperatureColor(high)};--range-low-color-dark:${temperatureColor(low, 66)};--range-high-color-dark:${temperatureColor(high, 66)}"></b></i>
         <strong>${formatTemp(high)}</strong>
       </div>
     `;
@@ -516,7 +516,9 @@ function render() {
   template.querySelector("#condition").textContent = t(type === "rain" ? "rainCondition" : type);
   template.querySelector("#condition-icon").innerHTML = weatherIcon(type);
   template.querySelector("#summary").textContent = `${t("feels")} ${formatTempWithUnit(current.apparent_temperature)} · ${t(comfortLevel)}`;
-  template.querySelector(".temperature").style.setProperty("--current-temperature-color", temperatureColor(current.temperature_2m));
+  const temperature = template.querySelector(".temperature");
+  temperature.style.setProperty("--current-temperature-color-light", temperatureColor(current.temperature_2m));
+  temperature.style.setProperty("--current-temperature-color-dark", temperatureColor(current.temperature_2m, 66));
   template.querySelector("#temperature").textContent = formatTemp(current.temperature_2m).replace("°", "");
   template.querySelector("#temperature-unit").textContent = state.unit === "fahrenheit" ? "°F" : "°C";
   template.querySelector("#feels-like").textContent = `${t("feels")} ${formatTemp(current.apparent_temperature)}`;
