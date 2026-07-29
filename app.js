@@ -29,7 +29,7 @@ const copy = {
     searchLabel: "Search a city", search: "Search a city", welcome: "Weather that fits your day",
     welcomeCopy: "Search a city or use your location to get started.", humidity: "Humidity", wind: "Wind",
     rain: "Rain", rainNow: "Rain now", uv: "UV index",
-    outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", briefTitle: "Today at a glance",
+    outlook: "Next 10 days", today: "Today", tomorrow: "Tomorrow", hourlyTab: "Hourly", tenDay: "10 days", briefTitle: "Today at a glance",
     feels: "Feels like", save: "Save city", unsave: "Saved", loading: "Getting the forecast...",
     locationError: "We could not get your location.", searchError: "City not found. Try another name.",
     current: "Current location", lastLocation: "Last location", clear: "Clear", partly: "Partly cloudy",
@@ -52,7 +52,7 @@ const copy = {
   zh: {
     searchLabel: "搜索城市", search: "搜索城市", welcome: "适合你今天的天气", welcomeCopy: "搜索城市或使用当前位置开始。",
     humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线",
-    outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
+    outlook: "未来 10 天", today: "今天", tomorrow: "明天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
     feels: "体感", save: "收藏城市", unsave: "已收藏", loading: "正在获取天气...", locationError: "无法获取当前位置。",
     searchError: "找不到这个城市，请换个名称。", current: "当前位置", lastLocation: "上次位置",
     clear: "晴朗", partly: "局部多云", cloudy: "多云", fog: "有雾", rainCondition: "有雨", snow: "下雪", storm: "雷暴",
@@ -72,12 +72,12 @@ const copy = {
 
 const forecastCopy = {
   en: {
-    hourly: "Next 12 hours", hourlyForecast: "Hourly forecast", outlook: "Next 10 days", now: "Now",
+    hourly: "Next 24 hours", hourlyForecast: "Hourly forecast", outlook: "Next 10 days", now: "Now",
     rainAt: "Rain from {time}", dryHours: "No rain expected", updated: "Updated {time}",
     refresh: "Refresh forecast"
   },
   zh: {
-    hourly: "未来 12 小时", hourlyForecast: "逐小时预报", outlook: "未来 10 天", now: "现在",
+    hourly: "未来 24 小时", hourlyForecast: "逐小时预报", outlook: "未来 10 天", now: "现在",
     rainAt: "{time} 起可能有雨", dryHours: "未来暂无降雨", updated: "更新于 {time}",
     refresh: "刷新天气"
   }
@@ -197,7 +197,8 @@ function temperatureColor(value) {
 }
 
 function formatHour(date) {
-  return new Intl.DateTimeFormat(locale(), { hour: "numeric" }).format(new Date(date));
+  const time = new Intl.DateTimeFormat(locale(), { hour: "numeric" }).format(new Date(`2000-01-01T${date.slice(11)}`));
+  return date.slice(0, 10) === state.weather.current.time.slice(0, 10) ? time : `${t("tomorrow")} ${time}`;
 }
 
 function formatForecastDay(date, index) {
@@ -386,7 +387,7 @@ function upcomingHours() {
     isCurrent: true
   };
 
-  return [currentHour, ...hourly.time.slice(firstFutureIndex, firstFutureIndex + 11).map((time, offset) => {
+  return [currentHour, ...hourly.time.slice(firstFutureIndex, firstFutureIndex + 23).map((time, offset) => {
     const index = firstFutureIndex + offset;
     return {
       time,

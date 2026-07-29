@@ -24,12 +24,12 @@ const weather = {
     relative_humidity_2m: 58, precipitation: 0.2, weather_code: 61, wind_speed_10m: 18, uv_index: 2
   },
   hourly: {
-    time: ["2026-07-28T10:00", "2026-07-28T11:00", "2026-07-28T12:00", "2026-07-28T13:00", "2026-07-28T14:00", "2026-07-28T15:00", "2026-07-28T16:00", "2026-07-28T17:00", "2026-07-28T18:00", "2026-07-28T19:00", "2026-07-28T20:00", "2026-07-28T21:00", "2026-07-28T22:00"],
-    temperature_2m: [99, 22, 23, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15],
-    precipitation: [0, 0, 0.1, 0.4, 0.2, 0, 0, 0, 0, 0, 0, 0, 0],
-    precipitation_probability: [0, 10, 20, 65, 40, 10, 0, 0, 0, 0, 0, 0, 0],
-    weather_code: [0, 1, 2, 61, 61, 3, 3, 3, 2, 1, 0, 0, 0],
-    wind_speed_10m: [4, 11, 12, 15, 18, 20, 22, 18, 14, 10, 8, 6, 4]
+    time: ["2026-07-28T10:00", "2026-07-28T11:00", "2026-07-28T12:00", "2026-07-28T13:00", "2026-07-28T14:00", "2026-07-28T15:00", "2026-07-28T16:00", "2026-07-28T17:00", "2026-07-28T18:00", "2026-07-28T19:00", "2026-07-28T20:00", "2026-07-28T21:00", "2026-07-28T22:00", "2026-07-28T23:00", "2026-07-29T00:00", "2026-07-29T01:00", "2026-07-29T02:00", "2026-07-29T03:00", "2026-07-29T04:00", "2026-07-29T05:00", "2026-07-29T06:00", "2026-07-29T07:00", "2026-07-29T08:00", "2026-07-29T09:00"],
+    temperature_2m: [99, 22, 23, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 15, 14, 14, 13, 13, 12, 12, 13, 14, 15, 16],
+    precipitation: [0, 0, 0.1, 0.4, 0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    precipitation_probability: [0, 10, 20, 65, 40, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    weather_code: [0, 1, 2, 61, 61, 3, 3, 3, 2, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1],
+    wind_speed_10m: [4, 11, 12, 15, 18, 20, 22, 18, 14, 10, 8, 6, 4, 4, 3, 3, 2, 2, 2, 3, 4, 6, 8, 10]
   },
   daily: {
     time: ["2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06"],
@@ -106,7 +106,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.getByRole("button", { name: "Remove Last location" }).count(), 0);
       assert.equal(await page.locator("#summary").textContent(), "Feels like 22°C · Balanced");
       assert.equal(await page.locator(".insights").count(), 0);
-      assert.equal(await page.locator("#hourly article").count(), 12);
+      assert.equal(await page.locator("#hourly article").count(), 24);
       assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-low-color")), "hsl(149 78% 52%)");
       assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-high-color")), "hsl(80 78% 52%)");
       assert.match(await page.locator("#hourly article").first().textContent(), /Now\s+.*21/);
@@ -118,7 +118,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     });
 
     await page.getByRole("button", { name: "中" }).click();
-    await assert.doesNotReject(() => page.getByText("未来 12 小时", { exact: true }).waitFor());
+    await assert.doesNotReject(() => page.getByText("未来 24 小时", { exact: true }).waitFor());
     assert.equal(await page.locator("#summary").textContent(), "体感 22°C · 体感平衡");
     assert.match(await page.locator("#weather-brief").textContent(), /^当前有阵雨，预计 .+ 前后减弱。气温最高约 24°C。紫外线较强，外出注意防晒。带上雨伞，运动更适合安排在室内。$/);
     assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "当前降雨");
