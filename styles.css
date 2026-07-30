@@ -216,20 +216,21 @@ button:focus-visible, input:focus-visible, a:focus-visible {
   .hourly p { font-size: 11px; }
   .hourly-icon { width: 29px; height: 29px; }
   .hourly strong { font-size: 16px; }
-  .forecast article.forecast-row { grid-template-columns: 58px 34px minmax(0, 1fr); grid-template-rows: 38px 28px; column-gap: 9px; row-gap: 8px; min-height: 96px; padding: 11px 14px; }
-  .forecast-row .forecast-day { font-size: 12px; line-height: 16px; }
+  .forecast article.forecast-row { grid-template-columns: 50px 42px minmax(0, 1fr); grid-template-rows: 52px; column-gap: 8px; row-gap: 0; min-height: 74px; padding: 11px 14px; }
+  .forecast-row .forecast-day { grid-column: 1; grid-row: 1; align-self: center; font-size: 12px; line-height: 16px; }
   .forecast-day-full { display: none; }
-  .forecast-day-primary, .forecast-day small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .forecast-day small { color: var(--muted); font-size: 10px; font-weight: 650; line-height: 13px; }
-  .forecast-row .forecast-icon { width: 30px; height: 30px; }
-  .forecast-row .forecast-condition { font-size: 12px; line-height: 16px; }
-  .forecast-row .forecast-rain { margin-top: 2px; font-size: 11px; line-height: 14px; }
-  .forecast-temperature { grid-column: 1 / -1; grid-template-columns: 38px minmax(80px, 1fr) 38px; gap: 9px; margin: 0; }
+  .forecast-day-primary { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .forecast-day small { display: none; }
+  .forecast-row .forecast-icon { grid-column: 2; grid-row: 1; align-self: start; justify-self: center; width: 30px; height: 30px; }
+  .forecast-detail { grid-column: 2; grid-row: 1; align-self: end; justify-self: center; }
+  .forecast-row .forecast-condition { display: none; }
+  .forecast-row .forecast-rain { margin: 0; font-size: 11px; line-height: 14px; text-align: center; }
+  .forecast-temperature { grid-column: 3; grid-row: 1; grid-template-columns: 34px minmax(76px, 1fr) 34px; gap: 6px; margin: 0; }
   .forecast-temperature > small, .forecast-temperature > strong { font-size: 13px; }
 }
 
 @media (max-width: 340px) {
-  .forecast article.forecast-row { grid-template-columns: 52px 32px minmax(0, 1fr); column-gap: 8px; min-height: 94px; padding: 10px 12px; }
+  .forecast article.forecast-row { grid-template-columns: 44px 38px minmax(0, 1fr); grid-template-rows: 50px; column-gap: 6px; min-height: 70px; padding: 10px 12px; }
   .forecast-row .forecast-icon { width: 28px; height: 28px; }
-  .forecast-temperature { grid-template-columns: 36px minmax(80px, 1fr) 36px; gap: 8px; }
+  .forecast-temperature { grid-template-columns: 30px minmax(76px, 1fr) 30px; gap: 6px; }
 }

@@ -128,30 +128,36 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
           const high = row.querySelector(".forecast-temperature > strong").getBoundingClientRect();
           const style = getComputedStyle(row);
           return {
-            expectedLeft: rowRect.left + parseFloat(style.paddingLeft),
-            expectedRight: rowRect.right - parseFloat(style.paddingRight),
+            rowTop: rowRect.top,
+            rowBottom: rowRect.bottom,
+            rowHeight: rowRect.height,
+            weatherRight: Math.max(icon.right, detail.right),
             temperatureLeft: temperature.left,
-            temperatureRight: temperature.right,
-            topContentBottom: Math.max(icon.bottom, detail.bottom),
             temperatureTop: temperature.top,
+            temperatureBottom: temperature.bottom,
             trackLeft: track.left,
             trackWidth: track.width,
             lowGap: track.left - low.right,
             highGap: high.left - track.right,
-            highRight: high.right
+            highRight: high.right,
+            gridRows: style.gridTemplateRows.split(" ").length
           };
         }));
         const first = layout[0];
         layout.forEach((row) => {
-          assert.ok(row.temperatureTop >= row.topContentBottom + 8);
-          assert.ok(Math.abs(row.temperatureLeft - row.expectedLeft) <= 1);
-          assert.ok(Math.abs(row.temperatureRight - row.expectedRight) <= 1);
-          assert.ok(row.trackWidth >= 150);
-          assert.ok(row.lowGap >= 8);
-          assert.ok(row.highGap >= 8);
+          assert.equal(row.gridRows, 1);
+          assert.ok(row.rowHeight <= 76);
+          assert.ok(row.temperatureLeft >= row.weatherRight + 6);
+          assert.ok(row.temperatureTop > row.rowTop);
+          assert.ok(row.temperatureBottom < row.rowBottom);
+          assert.ok(row.trackWidth >= 90);
+          assert.ok(row.lowGap >= 6);
+          assert.ok(row.highGap >= 6);
           assert.ok(Math.abs(row.trackLeft - first.trackLeft) <= 1);
           assert.ok(Math.abs(row.highRight - first.highRight) <= 1);
         });
+        assert.equal(await page.locator(".forecast-row .forecast-condition").first().isVisible(), false);
+        assert.equal(await page.locator(".forecast-day small").first().isVisible(), false);
         assert.match(await page.locator(".forecast-row").first().textContent(), /100%/);
         assert.match(await page.locator(".forecast-row").last().textContent(), /-10°/);
       }
