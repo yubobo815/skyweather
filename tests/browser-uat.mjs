@@ -92,7 +92,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await new Promise((resolveClose) => server.close(resolveClose));
   });
 
-  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 844 }]) {
     const { context, page } = await openApp(browser, viewport);
     await page.goto(serverUrl(server), { waitUntil: "networkidle" });
     await page.locator("#weather .hero").waitFor();
@@ -117,6 +117,19 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.match(await page.locator("#weather-brief").textContent(), /^Showers are around now, then should ease by .+\. Temperatures will reach 24°C today\. UV will be high, so use sun protection\. Keep an umbrella handy; keep your sport plans indoors\.$/);
       assert.equal(await page.locator("#alerts").count(), 0);
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
+      if (viewport.width <= 640) {
+        const layout = await page.locator(".forecast").evaluate((forecast) => [...forecast.querySelectorAll(".forecast-row")].map((row) => {
+          const icon = row.querySelector(".forecast-icon").getBoundingClientRect();
+          const detail = row.querySelector(".forecast-detail").getBoundingClientRect();
+          const temperature = row.querySelector(".forecast-temperature").getBoundingClientRect();
+          const track = row.querySelector(".forecast-temperature i").getBoundingClientRect();
+          return { topContentBottom: Math.max(icon.bottom, detail.bottom), temperatureTop: temperature.top, trackWidth: track.width };
+        }));
+        layout.forEach((row) => {
+          assert.ok(row.temperatureTop >= row.topContentBottom + 4);
+          assert.ok(row.trackWidth >= 80);
+        });
+      }
       await page.locator("#city-search").fill("Mel");
       const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });
       await suggestion.waitFor();

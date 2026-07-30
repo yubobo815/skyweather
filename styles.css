@@ -215,11 +215,11 @@ button:focus-visible, input:focus-visible, a:focus-visible {
   .hourly p { font-size: 11px; }
   .hourly-icon { width: 29px; height: 29px; }
   .hourly strong { font-size: 16px; }
-  .forecast article.forecast-row { grid-template-columns: 62px 34px minmax(0, 1fr); gap: 7px; min-height: 76px; padding: 10px 11px; }
+  .forecast article.forecast-row { grid-template-columns: 62px 34px minmax(0, 1fr); grid-template-rows: 36px 26px; column-gap: 9px; row-gap: 5px; min-height: 89px; padding: 11px; }
   .forecast-row .forecast-day { font-size: 12px; }
   .forecast-row .forecast-icon { width: 29px; height: 29px; }
   .forecast-row .forecast-condition { font-size: 12px; }
   .forecast-row .forecast-rain { font-size: 11px; }
-  .forecast-temperature { grid-column: 2 / -1; grid-template-columns: 34px minmax(80px, 1fr) 34px; margin-top: -4px; }
+  .forecast-temperature { grid-column: 2 / -1; grid-template-columns: 34px minmax(80px, 1fr) 34px; margin: 0; }
   .forecast-temperature > small, .forecast-temperature > strong { font-size: 13px; }
 }
