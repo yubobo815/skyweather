@@ -152,8 +152,8 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .hourly-wind { margin-top: 1px; color: var(--muted); font-size: 10px; font-weight: 650; }
 .rain-meter { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--sky) var(--rain), transparent var(--rain)); }
 
-.forecast { display: grid; grid-template-columns: 1fr; gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 6px 16px rgba(32, 37, 43, 0.025); }
-.forecast article.forecast-row { display: grid; grid-template-columns: 78px 36px minmax(100px, 0.7fr) minmax(320px, 2.2fr); align-items: center; gap: 10px; min-height: 76px; padding: 11px 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
+.forecast { display: grid; max-width: 820px; margin-inline: auto; grid-template-columns: 1fr; gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 6px 16px rgba(32, 37, 43, 0.025); }
+.forecast article.forecast-row { display: grid; grid-template-columns: 76px 34px minmax(110px, 180px) minmax(210px, 280px); justify-content: center; align-items: center; gap: 10px; min-height: 76px; padding: 11px 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
 .forecast article.forecast-row:last-child { border-bottom: 0; }
 .forecast-row .forecast-day { margin: 0; color: var(--ink); font-size: 14px; font-weight: 800; }
 .forecast-row .forecast-icon { display: block; width: 34px; height: 34px; margin: 0; }
