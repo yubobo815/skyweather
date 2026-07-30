@@ -201,7 +201,8 @@ function temperatureColor(value, lightness = 52) {
 }
 
 function formatHour(date) {
-  const time = new Intl.DateTimeFormat(locale(), { hour: "numeric" }).format(new Date(`2000-01-01T${date.slice(11)}`));
+  const hour = Number(date.slice(11, 13));
+  const time = state.language === "zh" ? `${hour}时` : `${hour % 12 || 12} ${hour < 12 ? "AM" : "PM"}`;
   return date.slice(0, 10) === state.weather.current.time.slice(0, 10) ? time : `${t("tomorrow")} ${time}`;
 }
 
