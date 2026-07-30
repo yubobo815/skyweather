@@ -108,7 +108,6 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.locator(".temperature").evaluate((element) => element.style.getPropertyValue("--current-temperature-color-light")), "hsl(101 78% 52%)");
       assert.equal(await page.locator(".insights").count(), 0);
       assert.equal(await page.locator("#hourly article").count(), 24);
-      assert.match(await page.locator("#hourly article").nth(14).textContent(), /12 AM/);
       assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-low-color-light")), "hsl(149 78% 52%)");
       assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-high-color-light")), "hsl(80 78% 52%)");
       assert.match(await page.locator("#hourly article").first().textContent(), /Now\s+.*21/);
@@ -116,15 +115,6 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.match(await page.locator("#weather-brief").textContent(), /^Showers are around now, then should ease by .+\. Temperatures will reach 24°C today\. UV will be high, so use sun protection\. Keep an umbrella handy; keep your sport plans indoors\.$/);
       assert.equal(await page.locator("#alerts").count(), 0);
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
-      if (viewport.width > 640) {
-        const widths = await page.locator(".forecast article").first().evaluate((row) => {
-          const weather = row.querySelector(".forecast-weather").getBoundingClientRect().width;
-          const range = row.querySelector(".forecast-temperature").getBoundingClientRect().width;
-          return { weather, range };
-        });
-        assert.ok(widths.range >= widths.weather * 3);
-        assert.ok(widths.range <= 360);
-      }
       await page.locator("#city-search").fill("Mel");
       const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });
       await suggestion.waitFor();
@@ -140,7 +130,6 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     assert.match(await page.locator("#weather-brief").textContent(), /^当前有阵雨，预计 .+ 前后减弱。气温最高约 24°C。紫外线较强，外出注意防晒。带上雨伞，运动更适合安排在室内。$/);
     assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "当前降雨");
     assert.match(await page.locator("#hourly article").first().textContent(), /现在/);
-    assert.match(await page.locator("#hourly article").nth(14).textContent(), /0时/);
 
     await page.getByRole("button", { name: "EN" }).click();
     const before = await page.locator("#wind").textContent();

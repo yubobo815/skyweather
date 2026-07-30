@@ -33,7 +33,7 @@ const copy = {
     searchLabel: "Search a city", search: "Search a city", welcome: "Weather that fits your day",
     welcomeCopy: "Search a city or use your location to get started.", humidity: "Humidity", wind: "Wind",
     rain: "Rain", rainNow: "Rain now", uv: "UV index",
-    outlook: "Next 10 days", today: "Today", hourlyTab: "Hourly", tenDay: "10 days", briefTitle: "Today at a glance",
+    outlook: "Next 10 days", today: "Today", tomorrow: "Tomorrow", hourlyTab: "Hourly", tenDay: "10 days", briefTitle: "Today at a glance",
     feels: "Feels like", save: "Save city", unsave: "Saved", loading: "Getting the forecast...",
     locationError: "We could not get your location.", searchError: "City not found. Try another name.",
     current: "Current location", lastLocation: "Last location", clear: "Clear", partly: "Partly cloudy",
@@ -56,7 +56,7 @@ const copy = {
   zh: {
     searchLabel: "搜索城市", search: "搜索城市", welcome: "适合你今天的天气", welcomeCopy: "搜索城市或使用当前位置开始。",
     humidity: "湿度", wind: "风速", rain: "降雨", rainNow: "当前降雨", uv: "紫外线",
-    outlook: "未来 10 天", today: "今天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
+    outlook: "未来 10 天", today: "今天", tomorrow: "明天", hourlyTab: "逐小时", tenDay: "10 天", briefTitle: "今日天气",
     feels: "体感", save: "收藏城市", unsave: "已收藏", loading: "正在获取天气...", locationError: "无法获取当前位置。",
     searchError: "找不到这个城市，请换个名称。", current: "当前位置", lastLocation: "上次位置",
     clear: "晴朗", partly: "局部多云", cloudy: "多云", fog: "有雾", rainCondition: "有雨", snow: "下雪", storm: "雷暴",
@@ -201,8 +201,8 @@ function temperatureColor(value, lightness = 52) {
 }
 
 function formatHour(date) {
-  const hour = Number(date.slice(11, 13));
-  return state.language === "zh" ? `${hour}时` : `${hour % 12 || 12} ${hour < 12 ? "AM" : "PM"}`;
+  const time = new Intl.DateTimeFormat(locale(), { hour: "numeric" }).format(new Date(`2000-01-01T${date.slice(11)}`));
+  return date.slice(0, 10) === state.weather.current.time.slice(0, 10) ? time : `${t("tomorrow")} ${time}`;
 }
 
 function formatForecastDay(date, index) {
@@ -486,8 +486,9 @@ function renderDailyForecast(root) {
     row.className = "forecast-row";
     row.innerHTML = `
       <p class="forecast-day">${formatForecastDay(date, index)}</p>
-      <div class="forecast-weather" aria-label="${t(type === "rain" ? "rainCondition" : type)}, ${chance}%">
-        <span class="forecast-icon" aria-hidden="true">${weatherIcon(type)}</span>
+      <span class="forecast-icon">${weatherIcon(type)}</span>
+      <div class="forecast-detail">
+        <p class="forecast-condition">${t(type === "rain" ? "rainCondition" : type)}</p>
         <small class="forecast-rain">${chance}%</small>
       </div>
       <div class="forecast-temperature">
