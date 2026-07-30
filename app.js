@@ -488,7 +488,7 @@ function renderDailyForecast(root) {
       <p class="forecast-day">${formatForecastDay(date, index)}</p>
       <div class="forecast-weather" aria-label="${t(type === "rain" ? "rainCondition" : type)}, ${chance}%">
         <span class="forecast-icon" aria-hidden="true">${weatherIcon(type)}</span>
-        <small class="forecast-rain${chance <= 20 ? " is-low" : ""}">${chance}%</small>
+        <small class="forecast-rain">${chance}%</small>
       </div>
       <div class="forecast-temperature">
         <small>${formatTemp(low)}</small>

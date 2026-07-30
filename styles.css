@@ -153,14 +153,13 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .rain-meter { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--sky) var(--rain), transparent var(--rain)); }
 
 .forecast { display: grid; grid-template-columns: 1fr; gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 6px 16px rgba(32, 37, 43, 0.025); }
-.forecast article.forecast-row { display: grid; grid-template-columns: 86px 82px minmax(0, 1fr) 44px minmax(150px, 230px) 44px; align-items: center; gap: 10px; min-height: 82px; padding: 12px 20px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
+.forecast article.forecast-row { display: grid; grid-template-columns: 78px 52px 38px minmax(160px, 1fr) 42px; align-items: center; gap: 12px; min-height: 76px; padding: 11px 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
 .forecast article.forecast-row:last-child { border-bottom: 0; }
 .forecast-row .forecast-day { margin: 0; color: var(--ink); font-size: 14px; font-weight: 800; }
-.forecast-weather { display: grid; justify-self: center; justify-items: center; min-width: 0; }
+.forecast-weather { display: grid; justify-items: center; min-width: 0; }
 .forecast-row .forecast-icon { display: block; width: 34px; height: 34px; margin: 0; }
 .forecast-row .forecast-rain { display: block; min-height: 14px; margin-top: 1px; color: #0284c7; font-size: 12px; font-weight: 800; line-height: 1.1; }
-.forecast-row .forecast-rain.is-low { color: var(--muted); }
-.forecast-temperature { display: grid; grid-column: 4 / -1; grid-template-columns: 44px minmax(150px, 230px) 44px; align-items: center; gap: 10px; min-width: 0; }
+.forecast-temperature { display: grid; grid-column: 3 / -1; grid-template-columns: 38px minmax(80px, 1fr) 42px; align-items: center; justify-self: end; gap: 8px; width: 100%; max-width: 360px; min-width: 0; }
 .forecast-temperature > small, .forecast-temperature > strong { display: block; margin: 0; color: var(--muted); font-size: 15px; font-weight: 700; text-align: right; }
 .forecast-temperature > strong { color: var(--ink); }
 .forecast-temperature i { position: relative; display: block; height: 8px; overflow: hidden; border-radius: 999px; background: #e5e7eb; }
@@ -215,10 +214,10 @@ button:focus-visible, input:focus-visible, a:focus-visible {
   .hourly p { font-size: 11px; }
   .hourly-icon { width: 29px; height: 29px; }
   .hourly strong { font-size: 16px; }
-  .forecast article.forecast-row { grid-template-columns: 62px 42px 32px minmax(76px, 1fr) 32px; gap: 7px; min-height: 76px; padding: 10px 11px; }
+  .forecast article.forecast-row { grid-template-columns: 62px 42px minmax(0, 1fr); gap: 7px; min-height: 76px; padding: 10px 11px; }
   .forecast-row .forecast-day { font-size: 12px; }
   .forecast-row .forecast-icon { width: 29px; height: 29px; }
   .forecast-row .forecast-rain { font-size: 11px; }
-  .forecast-temperature { grid-column: 3 / -1; grid-template-columns: 32px minmax(76px, 1fr) 32px; gap: 6px; margin: 0; }
+  .forecast-temperature { grid-column: 2 / -1; grid-template-columns: 34px minmax(80px, 1fr) 34px; max-width: none; margin-top: -4px; }
   .forecast-temperature > small, .forecast-temperature > strong { font-size: 13px; }
 }

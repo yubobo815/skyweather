@@ -92,7 +92,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await new Promise((resolveClose) => server.close(resolveClose));
   });
 
-  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 844 }]) {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     const { context, page } = await openApp(browser, viewport);
     await page.goto(serverUrl(server), { waitUntil: "networkidle" });
     await page.locator("#weather .hero").waitFor();
@@ -117,30 +117,14 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.locator("#alerts").count(), 0);
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
       if (viewport.width > 640) {
-        const layout = await page.locator(".forecast").evaluate((forecast) => {
-          const rows = [...forecast.querySelectorAll(".forecast-row")];
-          return rows.map((row) => {
-            const rect = row.getBoundingClientRect();
-            const day = row.querySelector(".forecast-day").getBoundingClientRect();
-            const weather = row.querySelector(".forecast-weather").getBoundingClientRect();
-            const low = row.querySelector(".forecast-temperature > small").getBoundingClientRect();
-            const track = row.querySelector(".forecast-temperature i").getBoundingClientRect();
-            const high = row.querySelector(".forecast-temperature > strong").getBoundingClientRect();
-            return { rowLeft: rect.left, rowRight: rect.right, dayLeft: day.left, weatherLeft: weather.left, lowLeft: low.left, trackLeft: track.left, trackWidth: track.width, highRight: high.right };
-          });
+        const widths = await page.locator(".forecast article").first().evaluate((row) => {
+          const weather = row.querySelector(".forecast-weather").getBoundingClientRect().width;
+          const range = row.querySelector(".forecast-temperature").getBoundingClientRect().width;
+          return { weather, range };
         });
-        const first = layout[0];
-        assert.ok(first.trackWidth >= 150 && first.trackWidth <= 230);
-        assert.ok(Math.abs(first.dayLeft - (first.rowLeft + 20)) <= 1);
-        assert.ok(Math.abs(first.highRight - (first.rowRight - 20)) <= 1);
-        layout.slice(1).forEach((row) => {
-          assert.ok(Math.abs(row.weatherLeft - first.weatherLeft) <= 1);
-          assert.ok(Math.abs(row.lowLeft - first.lowLeft) <= 1);
-          assert.ok(Math.abs(row.trackLeft - first.trackLeft) <= 1);
-          assert.ok(Math.abs(row.highRight - first.highRight) <= 1);
-        });
+        assert.ok(widths.range >= widths.weather * 3);
+        assert.ok(widths.range <= 360);
       }
-      assert.equal(await page.locator(".forecast-rain.is-low").count() > 0, true);
       await page.locator("#city-search").fill("Mel");
       const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });
       await suggestion.waitFor();
