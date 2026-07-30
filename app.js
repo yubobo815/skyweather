@@ -205,11 +205,16 @@ function formatHour(date) {
 }
 
 function formatForecastDay(date, index) {
-  if (index === 0) return t("today");
-  const options = state.language === "zh"
-    ? { month: "numeric", day: "numeric", weekday: "short" }
-    : { weekday: "short", day: "numeric" };
-  return new Intl.DateTimeFormat(locale(), options).format(new Date(`${date}T12:00:00`));
+  const value = new Date(`${date}T12:00:00`);
+  return {
+    full: index === 0 ? t("today") : new Intl.DateTimeFormat(locale(), state.language === "zh"
+      ? { month: "numeric", day: "numeric", weekday: "short" }
+      : { weekday: "short", day: "numeric" }).format(value),
+    primary: index === 0 ? t("today") : new Intl.DateTimeFormat(locale(), { weekday: "short" }).format(value),
+    secondary: new Intl.DateTimeFormat(locale(), state.language === "zh"
+      ? { month: "numeric", day: "numeric" }
+      : { month: "short", day: "numeric" }).format(value)
+  };
 }
 
 function phrase(key, values) {
@@ -475,6 +480,7 @@ function renderDailyForecast(root) {
   const scaleRange = Math.max(1, Math.max(...highs) - scaleLow);
 
   state.weather.daily.time.forEach((date, index) => {
+    const day = formatForecastDay(date, index);
     const type = weatherType(state.weather.daily.weather_code[index]);
     const low = lows[index];
     const high = highs[index];
@@ -484,7 +490,7 @@ function renderDailyForecast(root) {
     const row = document.createElement("article");
     row.className = "forecast-row";
     row.innerHTML = `
-      <p class="forecast-day">${formatForecastDay(date, index)}</p>
+      <p class="forecast-day" aria-label="${day.full}"><span class="forecast-day-full">${day.full}</span><span class="forecast-day-primary">${day.primary}</span><small>${day.secondary}</small></p>
       <span class="forecast-icon">${weatherIcon(type)}</span>
       <div class="forecast-detail">
         <p class="forecast-condition">${t(type === "rain" ? "rainCondition" : type)}</p>

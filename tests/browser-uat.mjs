@@ -34,9 +34,9 @@ const weather = {
   daily: {
     time: ["2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06"],
     weather_code: [61, 2, 3, 61, 0, 1, 2, 3, 61, 0],
-    temperature_2m_max: [24, 25, 23, 22, 26, 27, 25, 23, 21, 24],
-    temperature_2m_min: [14, 15, 13, 12, 14, 16, 15, 12, 11, 13],
-    precipitation_probability_max: [70, 20, 10, 60, 5, 0, 15, 30, 75, 10],
+    temperature_2m_max: [24, 25, 23, 22, 26, 27, 25, 23, 21, 38],
+    temperature_2m_min: [14, 15, 13, 12, 14, 16, 15, 12, 11, -10],
+    precipitation_probability_max: [100, 20, 10, 60, 5, 0, 15, 30, 75, 10],
     uv_index_max: [9, 8, 5, 4, 7, 8, 6, 4, 3, 5]
   }
 };
@@ -119,16 +119,41 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
       if (viewport.width <= 640) {
         const layout = await page.locator(".forecast").evaluate((forecast) => [...forecast.querySelectorAll(".forecast-row")].map((row) => {
+          const rowRect = row.getBoundingClientRect();
           const icon = row.querySelector(".forecast-icon").getBoundingClientRect();
           const detail = row.querySelector(".forecast-detail").getBoundingClientRect();
           const temperature = row.querySelector(".forecast-temperature").getBoundingClientRect();
+          const low = row.querySelector(".forecast-temperature > small").getBoundingClientRect();
           const track = row.querySelector(".forecast-temperature i").getBoundingClientRect();
-          return { topContentBottom: Math.max(icon.bottom, detail.bottom), temperatureTop: temperature.top, trackWidth: track.width };
+          const high = row.querySelector(".forecast-temperature > strong").getBoundingClientRect();
+          const style = getComputedStyle(row);
+          return {
+            expectedLeft: rowRect.left + parseFloat(style.paddingLeft),
+            expectedRight: rowRect.right - parseFloat(style.paddingRight),
+            temperatureLeft: temperature.left,
+            temperatureRight: temperature.right,
+            topContentBottom: Math.max(icon.bottom, detail.bottom),
+            temperatureTop: temperature.top,
+            trackLeft: track.left,
+            trackWidth: track.width,
+            lowGap: track.left - low.right,
+            highGap: high.left - track.right,
+            highRight: high.right
+          };
         }));
+        const first = layout[0];
         layout.forEach((row) => {
-          assert.ok(row.temperatureTop >= row.topContentBottom + 4);
-          assert.ok(row.trackWidth >= 80);
+          assert.ok(row.temperatureTop >= row.topContentBottom + 8);
+          assert.ok(Math.abs(row.temperatureLeft - row.expectedLeft) <= 1);
+          assert.ok(Math.abs(row.temperatureRight - row.expectedRight) <= 1);
+          assert.ok(row.trackWidth >= 150);
+          assert.ok(row.lowGap >= 8);
+          assert.ok(row.highGap >= 8);
+          assert.ok(Math.abs(row.trackLeft - first.trackLeft) <= 1);
+          assert.ok(Math.abs(row.highRight - first.highRight) <= 1);
         });
+        assert.match(await page.locator(".forecast-row").first().textContent(), /100%/);
+        assert.match(await page.locator(".forecast-row").last().textContent(), /-10°/);
       }
       await page.locator("#city-search").fill("Mel");
       const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });
@@ -155,6 +180,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     assert.match(before, /km\/h$/);
     assert.match(after, /mph$/);
     assert.match(await page.locator("#temperature-unit").textContent(), /°F/);
+    if (viewport.width <= 640) assert.match(await page.locator(".forecast-row").last().textContent(), /100°/);
     assert.equal(await page.locator("body").evaluate((body) => body.scrollWidth <= window.innerWidth), true);
 
     await page.emulateMedia({ colorScheme: "dark" });
