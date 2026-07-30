@@ -118,12 +118,12 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       assert.equal(await page.locator(".metrics article").nth(2).locator("span").textContent(), "Rain now");
       if (viewport.width > 640) {
         const widths = await page.locator(".forecast article").first().evaluate((row) => {
-          const detail = row.querySelector(".forecast-detail").getBoundingClientRect().width;
+          const weather = row.querySelector(".forecast-weather").getBoundingClientRect().width;
           const range = row.querySelector(".forecast-temperature").getBoundingClientRect().width;
-          return { detail, range };
+          return { weather, range };
         });
-        assert.ok(widths.range >= widths.detail * 0.8);
-        assert.ok(widths.range <= widths.detail * 1.1);
+        assert.ok(widths.range >= widths.weather * 3);
+        assert.ok(widths.range <= 360);
       }
       await page.locator("#city-search").fill("Mel");
       const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });

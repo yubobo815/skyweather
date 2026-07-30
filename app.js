@@ -486,9 +486,8 @@ function renderDailyForecast(root) {
     row.className = "forecast-row";
     row.innerHTML = `
       <p class="forecast-day">${formatForecastDay(date, index)}</p>
-      <span class="forecast-icon">${weatherIcon(type)}</span>
-      <div class="forecast-detail">
-        <p class="forecast-condition">${t(type === "rain" ? "rainCondition" : type)}</p>
+      <div class="forecast-weather" aria-label="${t(type === "rain" ? "rainCondition" : type)}, ${chance}%">
+        <span class="forecast-icon" aria-hidden="true">${weatherIcon(type)}</span>
         <small class="forecast-rain">${chance}%</small>
       </div>
       <div class="forecast-temperature">
