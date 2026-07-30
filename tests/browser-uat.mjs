@@ -122,8 +122,8 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
           const range = row.querySelector(".forecast-temperature").getBoundingClientRect().width;
           return { detail, range };
         });
-        assert.ok(widths.range > widths.detail);
-        assert.ok(widths.range <= widths.detail * 1.6);
+        assert.ok(widths.range >= widths.detail * 0.8);
+        assert.ok(widths.range <= widths.detail * 1.1);
       }
       await page.locator("#city-search").fill("Mel");
       const suggestion = page.getByRole("option", { name: /Melbourne.*Australia/ });
