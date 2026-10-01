@@ -46,6 +46,9 @@ test("temperature colors stay blue for cold days and progress to red for heat", 
   assert.equal(temperatureColor(-10), "#173b91");
   assert.equal(temperatureColor(0), "#173b91");
   assert.equal(temperatureColor(20), "#8acdec");
+  assert.equal(temperatureColor(22), "#f1db78");
+  assert.equal(temperatureColor(22, "dark"), "#f4df8a");
+  assert.equal(temperatureColor(22, "light", true), "#8a6a16");
   assert.equal(temperatureColor(25), "#ef8b2c");
   assert.equal(temperatureColor(35), "#a51e32");
   assert.equal(temperatureColor(45), "#a51e32");
@@ -54,6 +57,7 @@ test("temperature colors stay blue for cold days and progress to red for heat", 
   assert.equal(temperatureColor(35, "dark"), "#f16f82");
   const gradient = temperatureGradient(-10, 40);
   assert.match(gradient, /#8acdec 60\.00%/);
+  assert.match(gradient, /#f1db78 64\.00%/);
   assert.match(gradient, /#ef8b2c 70\.00%/);
   assert.match(gradient, /#a51e32 90\.00%/);
 });

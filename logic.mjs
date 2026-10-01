@@ -44,6 +44,7 @@ const TEMPERATURE_COLORS = [
   { temperature: 0, light: "#173b91", dark: "#729bff", text: "#173b91" },
   { temperature: 10, light: "#337fd0", dark: "#69b4f4", text: "#246caf" },
   { temperature: 20, light: "#8acdec", dark: "#a3ddf5", text: "#287aa2" },
+  { temperature: 22, light: "#f1db78", dark: "#f4df8a", text: "#8a6a16" },
   { temperature: 25, light: "#ef8b2c", dark: "#ffad58", text: "#b65e0d" },
   { temperature: 30, light: "#e34a2e", dark: "#ff8269", text: "#c13b24" },
   { temperature: 35, light: "#a51e32", dark: "#f16f82", text: "#a51e32" }
