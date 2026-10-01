@@ -12,6 +12,8 @@ const API_URL = "https://api.open-meteo.com/v1/forecast";
 const GEOCODER_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const SAVED_PLACES_KEY = "breezo-saved";
 const LAST_PLACE_KEY = "breezo-last-place";
+const WEATHER_CACHE_KEY = "breezo-weather-cache-v1";
+const WEATHER_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 
 const state = {
   language: readStorage("breezo-language") || "en",
@@ -92,6 +94,7 @@ const uiCopy = {
     language: "Language", switchUnit: "Switch temperature unit", useLocation: "Use current location",
     searchWeather: "Search weather", savedCities: "Saved cities", weatherDetails: "Weather details",
     removeCity: "Remove {city}",
+    refreshing: "Updating weather...", cachedError: "Could not refresh. Showing the last update.",
     apiError: "Weather data is unavailable. Please try again.", storageError: "Forecast loaded, but this browser could not save your last location.",
     geoUnsupported: "Your browser does not support location."
   },
@@ -99,6 +102,7 @@ const uiCopy = {
     language: "语言", switchUnit: "切换温度单位", useLocation: "使用当前位置", searchWeather: "搜索天气",
     savedCities: "已收藏城市", weatherDetails: "天气详情", apiError: "天气数据暂时不可用，请重试。", storageError: "天气已加载，但浏览器无法保存上次位置。",
     removeCity: "移除{city}",
+    refreshing: "正在更新天气…", cachedError: "更新失败，当前显示上次更新的数据。",
     geoUnsupported: "你的浏览器不支持定位。"
   }
 };
@@ -277,7 +281,8 @@ async function searchCity(query, language = state.language) {
 }
 
 async function loadPlace(place, requestId = ++state.requestId) {
-  setStatus("loading");
+  lastForegroundRefreshAt = Date.now();
+  setStatus(state.weather ? "refreshing" : "loading");
   try {
     const weather = await getWeather(place.latitude, place.longitude);
     if (!isCurrentRequest(requestId, state.requestId)) return;
@@ -286,10 +291,39 @@ async function loadPlace(place, requestId = ++state.requestId) {
     state.weather = weather;
     state.fetchedAt = new Date();
     const savedLastPlace = writeStorage(LAST_PLACE_KEY, JSON.stringify(persistedPlace(place)));
+    writeStorage(WEATHER_CACHE_KEY, JSON.stringify({ place: persistedPlace(place), weather, fetchedAt: state.fetchedAt.toISOString() }));
     render();
     setStatus(savedLastPlace ? null : "storageError");
   } catch {
-    if (isCurrentRequest(requestId, state.requestId)) setStatus("apiError");
+    if (isCurrentRequest(requestId, state.requestId)) setStatus(state.weather ? "cachedError" : "apiError");
+  }
+}
+
+function restoreWeather(place) {
+  try {
+    const cache = JSON.parse(readStorage(WEATHER_CACHE_KEY) || "null");
+    const fetchedAt = new Date(cache?.fetchedAt);
+    const age = Date.now() - fetchedAt.getTime();
+    if (!cache || !Number.isFinite(age) || age < 0 || age > WEATHER_CACHE_MAX_AGE) return;
+    if (cache.place?.latitude !== place.latitude || cache.place?.longitude !== place.longitude) return;
+    const weather = cache.weather;
+    if (!weather?.current?.time || !Number.isFinite(weather.current.temperature_2m)) return;
+    for (const section of ["hourly", "daily"]) {
+      const data = weather[section];
+      if (!Array.isArray(data?.time) || !data.time.length) return;
+      const fields = section === "hourly"
+        ? ["temperature_2m", "precipitation", "precipitation_probability", "weather_code", "wind_speed_10m"]
+        : ["temperature_2m_min", "temperature_2m_max", "weather_code", "precipitation_probability_max", "uv_index_max"];
+      if (fields.some((field) => !Array.isArray(data[field]) || data[field].length !== data.time.length)) return;
+    }
+    state.place = place;
+    state.weather = weather;
+    state.fetchedAt = fetchedAt;
+    render();
+  } catch {
+    state.place = null;
+    state.weather = null;
+    state.fetchedAt = null;
   }
 }
 
@@ -741,5 +775,6 @@ applyLanguage();
 
 const previousPlace = lastPlace();
 if (previousPlace?.latitude != null && previousPlace?.longitude != null) {
+  restoreWeather(previousPlace);
   loadPlace(previousPlace);
 }

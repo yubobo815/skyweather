@@ -92,6 +92,41 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await new Promise((resolveClose) => server.close(resolveClose));
   });
 
+  await t.test("cached weather renders before a slow response and survives refresh failure", async () => {
+    const { context, page } = await openApp(browser, { width: 390, height: 844 });
+    const cachedAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    await context.addInitScript(({ place, forecast, fetchedAt }) => {
+      localStorage.setItem("breezo-weather-cache-v1", JSON.stringify({ place, weather: forecast, fetchedAt }));
+    }, { place: fixturePlace, forecast: weather, fetchedAt: cachedAt });
+    let pendingRoute;
+    let requestCount = 0;
+    await page.route("https://api.open-meteo.com/v1/forecast?**", (route) => {
+      requestCount += 1;
+      pendingRoute = route;
+    });
+    await page.goto(serverUrl(server), { waitUntil: "domcontentloaded" });
+    await page.locator("#weather .hero").waitFor();
+    await page.waitForFunction(() => document.querySelector("#status").textContent.includes("Updating"));
+    assert.equal(await page.locator("#temperature").textContent(), "21");
+    const oldTimestamp = await page.locator("#updated-at").textContent();
+    assert.ok(oldTimestamp.includes(new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(cachedAt))));
+    assert.equal(requestCount, 1);
+    await pendingRoute.abort();
+    await page.getByText("Could not refresh. Showing the last update.", { exact: true }).waitFor();
+    assert.equal(await page.locator("#temperature").textContent(), "21");
+    assert.equal(await page.locator("#updated-at").textContent(), oldTimestamp);
+    await page.route("https://api.open-meteo.com/v1/forecast?**", (route) => route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ ...weather, current: { ...weather.current, temperature_2m: 25 } })
+    }));
+    await page.getByRole("button", { name: "Refresh forecast" }).click();
+    await page.waitForFunction(() => document.querySelector("#temperature").textContent === "25");
+    assert.notEqual(await page.locator("#updated-at").textContent(), oldTimestamp);
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("breezo-weather-cache-v1")));
+    assert.equal(saved.weather.current.temperature_2m, 25);
+    await context.close();
+  });
+
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 844 }]) {
     const { context, page } = await openApp(browser, viewport);
     await page.goto(serverUrl(server), { waitUntil: "networkidle" });
