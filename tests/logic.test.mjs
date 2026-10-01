@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, temperatureHue, toggleSavedPlace, weatherType } from "../logic.mjs";
+import { comfort, isCurrentRequest, localizedPlaceLabels, matchingPlace, rainTiming, samePlace, temperatureColor, temperatureGradient, toggleSavedPlace, weatherType } from "../logic.mjs";
 
 test("weather codes map to user-facing conditions", () => {
   assert.equal(weatherType(0), "clear");
@@ -43,11 +43,19 @@ test("rain timing identifies the first meaningful wet hour", () => {
 });
 
 test("temperature colors stay blue for cold days and progress to red for heat", () => {
-  assert.equal(temperatureHue(-10), 210);
-  assert.equal(temperatureHue(0), 210);
-  assert.equal(temperatureHue(20), 108);
-  assert.equal(temperatureHue(35), 5);
-  assert.equal(temperatureHue(45), 5);
+  assert.equal(temperatureColor(-10), "#173b91");
+  assert.equal(temperatureColor(0), "#173b91");
+  assert.equal(temperatureColor(20), "#8acdec");
+  assert.equal(temperatureColor(25), "#ef8b2c");
+  assert.equal(temperatureColor(35), "#a51e32");
+  assert.equal(temperatureColor(45), "#a51e32");
+  assert.equal(temperatureColor(15), "#5fa6de");
+  assert.equal(temperatureColor(20, "light", true), "#287aa2");
+  assert.equal(temperatureColor(35, "dark"), "#f16f82");
+  const gradient = temperatureGradient(-10, 40);
+  assert.match(gradient, /#8acdec 60\.00%/);
+  assert.match(gradient, /#ef8b2c 70\.00%/);
+  assert.match(gradient, /#a51e32 90\.00%/);
 });
 
 test("common city labels remain bilingual when searched in Chinese", () => {

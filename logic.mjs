@@ -40,9 +40,37 @@ export function rainTiming(hours) {
   return hours.findIndex(hour => hour.precipitation >= 0.2 || hour.precipitationProbability >= 50);
 }
 
-export function temperatureHue(celsius) {
-  const bounded = Math.min(35, Math.max(5, celsius));
-  return Math.round(210 - ((bounded - 5) / 30) * 205);
+const TEMPERATURE_COLORS = [
+  { temperature: 0, light: "#173b91", dark: "#729bff", text: "#173b91" },
+  { temperature: 10, light: "#337fd0", dark: "#69b4f4", text: "#246caf" },
+  { temperature: 20, light: "#8acdec", dark: "#a3ddf5", text: "#287aa2" },
+  { temperature: 25, light: "#ef8b2c", dark: "#ffad58", text: "#b65e0d" },
+  { temperature: 30, light: "#e34a2e", dark: "#ff8269", text: "#c13b24" },
+  { temperature: 35, light: "#a51e32", dark: "#f16f82", text: "#a51e32" }
+];
+
+export function temperatureColor(celsius, theme = "light", text = false) {
+  const value = Number.isFinite(celsius) ? celsius : 20;
+  const key = theme === "dark" ? "dark" : text ? "text" : "light";
+  const upperIndex = TEMPERATURE_COLORS.findIndex((stop) => stop.temperature >= value);
+  if (upperIndex === 0) return TEMPERATURE_COLORS[0][key];
+  if (upperIndex < 0) return TEMPERATURE_COLORS.at(-1)[key];
+  const lower = TEMPERATURE_COLORS[upperIndex - 1];
+  const upper = TEMPERATURE_COLORS[upperIndex];
+  const fraction = (value - lower.temperature) / (upper.temperature - lower.temperature);
+  const channels = [1, 3, 5].map((offset) => {
+    const start = parseInt(lower[key].slice(offset, offset + 2), 16);
+    const end = parseInt(upper[key].slice(offset, offset + 2), 16);
+    return Math.round(start + (end - start) * fraction).toString(16).padStart(2, "0");
+  });
+  return `#${channels.join("")}`;
+}
+
+export function temperatureGradient(low, high, theme = "light") {
+  if (high <= low) return `linear-gradient(90deg, ${temperatureColor(low, theme)}, ${temperatureColor(low, theme)})`;
+  const temperatures = [low, ...TEMPERATURE_COLORS.map((stop) => stop.temperature).filter((value) => value > low && value < high), high];
+  const stops = temperatures.map((value) => `${temperatureColor(value, theme)} ${((value - low) / (high - low) * 100).toFixed(2)}%`);
+  return `linear-gradient(90deg, ${stops.join(", ")})`;
 }
 
 const commonCityLabels = {

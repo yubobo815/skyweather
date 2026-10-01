@@ -140,13 +140,12 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
       await removeSavedCity.click();
       assert.equal(await page.getByRole("button", { name: "Remove Last location" }).count(), 0);
       assert.equal(await page.locator("#summary").textContent(), "Feels like 22°C · Balanced");
-      assert.equal(await page.locator(".temperature").evaluate((element) => element.style.getPropertyValue("--current-temperature-color-light")), "hsl(101 78% 52%)");
+      assert.equal(await page.locator(".temperature").evaluate((element) => element.style.getPropertyValue("--current-temperature-color-light")), "#447484");
       assert.equal(await page.locator(".insights").count(), 0);
       assert.equal(await page.locator("#hourly article").count(), 24);
       assert.match(await page.locator("#hourly article").nth(14).textContent(), /12 AM/);
       assert.equal((await page.locator("#hourly").textContent()).includes("Tomorrow"), false);
-      assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-low-color-light")), "hsl(149 78% 52%)");
-      assert.equal(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-high-color-light")), "hsl(80 78% 52%)");
+      assert.match(await page.locator(".forecast-temperature b").first().evaluate((bar) => bar.style.getPropertyValue("--range-gradient-light")), /#8acdec 60\.00%/);
       assert.match(await page.locator("#hourly article").first().textContent(), /Now\s+.*21/);
       assert.equal((await page.locator("#hourly article").first().textContent()).includes("99"), false);
       assert.match(await page.locator("#weather-brief").textContent(), /^Showers are around now, then should ease by .+\. Temperatures will reach 24°C today\. UV will be high, so use sun protection\. Keep an umbrella handy; keep your sport plans indoors\.$/);
@@ -227,7 +226,7 @@ test("browser UAT covers persisted forecast data and responsive presentation", {
     await page.emulateMedia({ colorScheme: "dark" });
     await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
-    assert.equal(await page.locator(".temperature").evaluate((element) => element.style.getPropertyValue("--current-temperature-color-dark")), "hsl(101 78% 66%)");
+    assert.equal(await page.locator(".temperature").evaluate((element) => element.style.getPropertyValue("--current-temperature-color-dark")), "#b5d3d6");
     assert.match(await page.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor), /rgb\(25, 27, 32\)/);
     await page.emulateMedia({ colorScheme: "light" });
     await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
